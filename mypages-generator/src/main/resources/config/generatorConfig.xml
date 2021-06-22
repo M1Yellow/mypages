@@ -46,7 +46,7 @@
         -->
         <!-- jdbc 的数据库连接配置 -->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://192.168.3.151:3306/mypages?useUnicode=true&amp;characeterEncoding=utf-8&amp;serverTimezone=UTC"
+                        connectionURL="jdbc:mysql://192.168.137.151:3306/mypages?useUnicode=true&amp;characeterEncoding=utf-8&amp;serverTimezone=UTC"
                         userId="root"
                         password="123456.a">
         </jdbcConnection>

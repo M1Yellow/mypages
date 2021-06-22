@@ -35,7 +35,7 @@ public class MpCodeGenerator {
     };
 
     // 数据库连接信息
-    private static final String URL = "jdbc:mysql://192.168.3.151:3306/mypages-test?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=GMT%2B8";
+    private static final String URL = "jdbc:mysql://192.168.137.151:3306/mypages-test?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=GMT%2B8";
     private static final String DRIVER_NAME = "com.mysql.cj.jdbc.Driver";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "123456.a";

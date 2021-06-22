@@ -1,13 +1,17 @@
 package cn.m1yellow.mypages.security.component;
 
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
+import cn.m1yellow.mypages.common.util.FastJsonUtil;
+import cn.m1yellow.mypages.common.util.ObjectUtil;
+import cn.m1yellow.mypages.common.util.RedisUtil;
+import cn.m1yellow.mypages.security.config.IgnoreUrlsConfig;
 import cn.m1yellow.mypages.security.entity.SysPermission;
 import cn.m1yellow.mypages.security.entity.SysRole;
 import cn.m1yellow.mypages.security.entity.SysRolePermission;
 import cn.m1yellow.mypages.security.service.SysPermissionService;
 import cn.m1yellow.mypages.security.service.SysRolePermissionService;
 import cn.m1yellow.mypages.security.service.SysRoleService;
-import cn.m1yellow.mypages.security.config.IgnoreUrlsConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.ConfigAttribute;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -48,6 +53,21 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
     private SysRolePermissionService rolePermissionService;
     @Autowired
     private IgnoreUrlsConfig ignoreUrlsConfig;
+    @Autowired
+    private RedisUtil redisUtil;
+
+
+    /**
+     * 资源路径对应的角色列表
+     */
+    private Map<String, List<String>> resourceRolesMap;
+
+
+    @PostConstruct
+    public void initData() {
+        // 初始化资源路径对应的角色列表
+        resourceRolesMap = this.getResourceRolesMap();
+    }
 
 
     /**
@@ -82,43 +102,66 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
             return SecurityConfig.createList(GlobalConstant.NEED_LOGIN);
         }
 
-        // 获取数据库中所有 url
-        List<SysPermission> permissionList = permissionService.queryAllPermission();
-
-        /**
-         * TODO 几乎每个请求都要校验权限，每次都要多层循环查询数据库，性能非常糟糕！！！
-         * 解决方案：
-         * 方案一 采用非关系型数据库，比如 mangodb 做权限校验
-         * 方案二 查询数据量大的地方，加入缓存，但还是有个别不通用的查询做不了缓存
-         */
-        for (SysPermission permission : permissionList) {
-            // 根据请求 url 匹配 permission
-            if (pathMatcher.match(permission.getUrl(), uri)) {
-                // 获取该 url 所对应的角色权限 role_permission，可能有多个
-                Map<String, Object> params = new HashMap<>();
-                params.put("permission_id", permission.getId());
-                List<SysRolePermission> rolePermissionList = rolePermissionService.listByMap(params);
-                List<String> roles = new ArrayList<>(); // 直接 new 吧，别拆开判断 if null 了，容易出错
-                if (rolePermissionList != null && rolePermissionList.size() > 0) {
-                    for (SysRolePermission rolePermission : rolePermissionList) {
-                        // 由角色权限查角色
-                        Long roleId = rolePermission.getRoleId();
-                        if (roleId != null) {
-                            SysRole role = roleService.getById(roleId);
-                            if (role != null)
-                                roles.add(role.getCode()); // code like admin
-                        }
-                    }
-                }
-                if (roles != null && roles.size() > 0) {
-                    // 保存该 url 对应角色权限信息
-                    return SecurityConfig.createList(roles.toArray(new String[roles.size()]));
-                }
-            }
+        // 获取访问路径对应的角色列表
+        List<String> roleList = resourceRolesMap.get(uri);
+        if (roleList != null && roleList.size() > 0) {
+            // 保存该 url 对应角色权限信息
+            return SecurityConfig.createList(roleList.toArray(new String[roleList.size()]));
         }
+
         // 如果数据库中没有配置 url 权限，或者访问的 url 不在权限列表中
         return SecurityConfig.createList(GlobalConstant.URI_NOT_FOUND);
     }
+
+
+    /**
+     * 获取资源路径对应的角色列表
+     *
+     * @return
+     */
+    private Map<String, List<String>> getResourceRolesMap() {
+        Map<String, List<String>> resourceRolesMap = new TreeMap<>(); // 不能设置 null，下方反序列化需要使用 resourceRolesMap.getClass()
+        // 先从缓存中获取
+        String resourceRolesMapStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.RESOURCE_ROLES_MAP_KEY));
+        if (StringUtils.isNotBlank(resourceRolesMapStr)) {
+            resourceRolesMap = FastJsonUtil.json2Bean(resourceRolesMapStr, resourceRolesMap.getClass());
+        }
+        if (resourceRolesMap != null && resourceRolesMap.size() > 0) {
+            return resourceRolesMap;
+        }
+        if (resourceRolesMap == null) resourceRolesMap = new TreeMap<>();
+        // 获取数据库中所有 url
+        List<SysPermission> permissionList = permissionService.queryAllPermission();
+        for (SysPermission permission : permissionList) {
+            // 获取该 url 所对应的角色权限 role_permission，可能有多个
+            Map<String, Object> params = new HashMap<>();
+            params.put("permission_id", permission.getId());
+            List<SysRolePermission> rolePermissionList = rolePermissionService.listByMap(params);
+            List<String> roles = new ArrayList<>(); // 直接 new 吧，别拆开判断 if null 了，容易出错
+            if (rolePermissionList != null && rolePermissionList.size() > 0) {
+                for (SysRolePermission rolePermission : rolePermissionList) {
+                    // 由角色权限查角色
+                    Long roleId = rolePermission.getRoleId();
+                    if (roleId != null) {
+                        SysRole role = roleService.getById(roleId);
+                        if (role != null)
+                            roles.add(role.getCode()); // code like admin
+                    }
+                }
+            }
+            if (roles != null && roles.size() > 0) {
+                resourceRolesMap.put(permission.getUrl(), roles);
+            }
+        }
+
+        if (resourceRolesMap != null && resourceRolesMap.size() > 0) {
+            //redisTemplate.opsForHash().putAll(RedisConstant.RESOURCE_ROLES_MAP, resourceRolesMap);
+            redisUtil.set(GlobalConstant.RESOURCE_ROLES_MAP_KEY, FastJsonUtil.bean2Json(resourceRolesMap));
+        }
+
+        return resourceRolesMap;
+    }
+
 
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {

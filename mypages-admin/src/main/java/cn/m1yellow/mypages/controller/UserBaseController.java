@@ -166,16 +166,16 @@ public class UserBaseController {
     @ApiOperation("移除用户")
     @RequestMapping(value = "remove", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     @WebLog
-    @CacheEvict(value = GlobalConstant.CACHE_2HOURS, key = "T(cn.m1yellow.mypages.common.constant.GlobalConstant).USER_INFO_DETAIL_CACHE_KEY + #id")
-    public CommonResult<String> remove(@RequestParam Long id) {
+    @CacheEvict(value = GlobalConstant.CACHE_2HOURS, key = "T(cn.m1yellow.mypages.common.constant.GlobalConstant).USER_INFO_DETAIL_CACHE_KEY + #userId")
+    public CommonResult<String> remove(@RequestParam Long userId) {
 
-        if (id == null) {
+        if (userId == null) {
             log.error("请求参数错误");
             return CommonResult.failed("请求参数错误");
         }
 
-        if (!userBaseService.removeById(id)) {
-            log.error("移除失败，id:" + id);
+        if (!userBaseService.removeById(userId)) {
+            log.error("移除失败，id:" + userId);
             return CommonResult.failed("移除失败");
         }
 

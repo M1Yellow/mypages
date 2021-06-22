@@ -9,7 +9,7 @@ public enum ResultCode implements IErrorCode {
     SUCCESS(200, "操作成功"),
     FAILED(500, "服务器响应失败，请稍后重试"),
     VALIDATE_FAILED(400, "参数检验失败"),
-    UNAUTHORIZED(401, "暂未登录或token已过期"),
+    UNAUTHORIZED(401, "暂未登录/token已过期/token校验未通过"),
     FORBIDDEN(403, "没有访问权限"),
     NOT_FOUND(404, "未找到资源");
 

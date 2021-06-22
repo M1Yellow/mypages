@@ -23,6 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * JWT 登录验证过滤器
@@ -70,27 +71,56 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
         // 获取 auth 标识：Authorization
         String authHeader = request.getHeader(jwtSecurityProperties.getTokenHeader());
+        if (StringUtils.isBlank(authHeader) || !authHeader.startsWith(jwtSecurityProperties.getTokenStart())) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-        if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith(jwtSecurityProperties.getTokenStart())) {
+        // 获取 "Bearer " 之后的真正 token
+        String authToken = authHeader.substring(jwtSecurityProperties.getTokenStart().length());
+        if (StringUtils.isBlank(authToken)) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-            // 获取 "Bearer " 之后的 token
-            String authToken = authHeader.substring(jwtSecurityProperties.getTokenStart().length());
-            // 从 token 中获取用户名
-            String username = jwtTokenUtil.getUserNameFromToken(authToken);
-            log.info(">>>> check token username: {}", username);
+        // 从 token 中获取用户名
+        String username = jwtTokenUtil.getUserNameFromToken(authToken);
+        log.info(">>>> check token username: {}", username);
+        if (StringUtils.isBlank(username) || SecurityContextHolder.getContext().getAuthentication() != null) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-            if (StringUtils.isNotBlank(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // spring security 用户详情对象封装
-                SecurityUser userDetails = (SecurityUser) userDetailsService.loadUserByUsername(username);
-                // 验证用户 token
-                if (jwtTokenUtil.validateUserToken(authToken, userDetails)) {
-                    // spring security 用户名和密码校验规则
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    log.info(">>>> authenticated user: {}", username);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+        // TODO 获取请求参数中的 userId（个别方法可能没有这个参数），用于校验 token 用户身份
+        //  避免拿别人的 token 自己用，或者拿自己的 token 操作别人的数据。
+        String userIdStr = request.getParameter("userId");
+        Long userId = null;
+        if (StringUtils.isNotBlank(userIdStr)) {
+            try {
+                userId = Long.parseLong(userIdStr);
+            } catch (NumberFormatException e) {
+                log.error(">>>> get userId from request params exception: {}", e.getMessage());
             }
+        }
+
+        // spring security 用户详情对象封装
+        SecurityUser userDetails = (SecurityUser) userDetailsService.loadUserByUsername(username);
+        if (userDetails == null || userDetails.getUserBase() == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+        // 设置要校验的 userId
+        if (userId != null){
+            userDetails.getUserBase().setId(userId);
+        }
+
+        // 验证用户 token
+        if (jwtTokenUtil.validateUserToken(authToken, userDetails)) {
+            // spring security 用户名和密码校验规则
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            log.info(">>>> authenticated user: {}", username);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         // 放行，继续往下执行

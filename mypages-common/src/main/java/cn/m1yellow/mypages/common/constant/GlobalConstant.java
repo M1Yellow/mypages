@@ -176,6 +176,10 @@ public class GlobalConstant {
     public static final String URI_NOT_FOUND = "uriNotFound";
 
     /**
+     * 资源路径对应的角色列表缓存
+     */
+    public static final String RESOURCE_ROLES_MAP_KEY = "RESOURCE_ROLES_MAP_CACHE";
+    /**
      * 路径权限表所有权限缓存
      */
     public static final String SYS_PERMISSION_LIST_CACHE_KEY = "SYS_PERMISSION_LIST_CACHE";
