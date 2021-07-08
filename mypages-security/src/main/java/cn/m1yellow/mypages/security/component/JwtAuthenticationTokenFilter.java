@@ -93,6 +93,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
         // TODO 获取请求参数中的 userId（个别方法可能没有这个参数），用于校验 token 用户身份
         //  避免拿别人的 token 自己用，或者拿自己的 token 操作别人的数据。
+        //  也可以把 userId 存 jwt 参数，过滤器从 token 中取 userId，放入 request，后续接口统一从 request 中取 userId，这样能保证用户身份统一
         String userIdStr = request.getParameter("userId");
         Long userId = null;
         if (StringUtils.isNotBlank(userIdStr)) {

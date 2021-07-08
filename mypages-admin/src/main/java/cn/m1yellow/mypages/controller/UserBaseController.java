@@ -2,6 +2,7 @@ package cn.m1yellow.mypages.controller;
 
 
 import cn.m1yellow.mypages.common.api.CommonResult;
+import cn.m1yellow.mypages.common.aspect.RateLimit;
 import cn.m1yellow.mypages.common.aspect.WebLog;
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
@@ -24,6 +25,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,6 +57,8 @@ public class UserBaseController {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @ApiOperation("添加/更新用户")
@@ -89,6 +93,7 @@ public class UserBaseController {
     @ApiOperation("用户登录")
     @RequestMapping(value = "login", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     @WebLog
+    @RateLimit(number = 2, cycle = 10)
     public CommonResult<Map<String, String>> login(@RequestParam String userName, @RequestParam String password) {
 
         /**
@@ -106,8 +111,8 @@ public class UserBaseController {
         try {
             SecurityUser userDetails = (SecurityUser) userDetailsService.loadUserByUsername(userName);
             // 这里的 password 是客户端加密后的
-            //if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            if (userDetails == null || !password.equals(userDetails.getPassword())) {
+            if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            //if (userDetails == null || !password.equals(userDetails.getPassword())) {
                 throw new BadCredentialsException("用户名或密码错误");
             }
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

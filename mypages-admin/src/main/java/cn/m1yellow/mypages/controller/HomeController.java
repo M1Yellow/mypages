@@ -1,6 +1,7 @@
 package cn.m1yellow.mypages.controller;
 
 import cn.m1yellow.mypages.common.api.CommonResult;
+import cn.m1yellow.mypages.common.aspect.RateLimit;
 import cn.m1yellow.mypages.common.aspect.WebLog;
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
 import cn.m1yellow.mypages.common.util.FastJsonUtil;
@@ -70,6 +71,7 @@ public class HomeController {
     //@RequestMapping 设置 "" 是能匹配到 "/" 的，反过来则不行
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     @WebLog
+    @RateLimit(number = 2, cycle = 10)
     @Cacheable(value = GlobalConstant.CACHE_7DAYS, key = "T(cn.m1yellow.mypages.common.constant.GlobalConstant).HOME_PLATFORM_LIST_DEFAULT_CACHE_KEY", unless = "#result==null")
     public CommonResult<List<PlatformItem>> homeContent() {
 

@@ -1,4 +1,4 @@
-package cn.m1yellow.mypages.config;
+package cn.m1yellow.mypages.security.config;
 
 import cn.m1yellow.mypages.common.constant.CacheType;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
