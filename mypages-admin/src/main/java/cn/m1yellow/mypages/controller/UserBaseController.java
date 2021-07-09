@@ -110,9 +110,8 @@ public class UserBaseController {
         String token = null;
         try {
             SecurityUser userDetails = (SecurityUser) userDetailsService.loadUserByUsername(userName);
-            // 这里的 password 是客户端加密后的
-            if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            //if (userDetails == null || !password.equals(userDetails.getPassword())) {
+            if (userDetails == null || !passwordEncoder.matches(password, userDetails.getPassword())) {
+            //if (userDetails == null || !password.equals(userDetails.getPassword())) { // 这里的 password 是客户端加密后的
                 throw new BadCredentialsException("用户名或密码错误");
             }
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
