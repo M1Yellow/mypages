@@ -1,6 +1,7 @@
 package cn.m1yellow.mypages.common.aspect;
 
 import cn.m1yellow.mypages.common.util.GsonUtil;
+import cn.m1yellow.mypages.common.util.HeaderUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -91,7 +92,7 @@ public class WebLogAspect {
         // 打印调用 controller 的全路径以及执行方法
         log.info("Class Method   : {}.{}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
         // 打印请求的 IP
-        log.info("IP             : {}", request.getRemoteAddr());
+        log.info("IP             : {}", HeaderUtil.getRequestIp(request));
         // 打印请求入参
         log.info("Request Args   : {}", GsonUtil.bean2Json(joinPoint.getArgs()));
     }
