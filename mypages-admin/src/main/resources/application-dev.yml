@@ -162,10 +162,31 @@ secure:
       - /error
 
 
-# 用户头像保存位置
+# TODO 注意，图片上传到自己的服务器可能会受到“文件上传攻击”，校验文件类型后缀、图片格式字节码等措施能起到一定防范作用，但依然可能被绕过。建议购买或自行搭建图片服务器。
+# 用户头像保存位置（没有购买OSS时使用）
 user:
   avatar:
     # 相对项目根目录，本地运行可行，部署 Linux 之后，根目录为 /，导致路径出错
     #savedir: mypages-admin/src/main/resources/public/images/user-profile-photo/
     # target 下的 classes 目录，不区分平台，但本地项目执行 mvn clean 后会被清理
     savedir: public/images/user-profile-photo/
+
+
+# OSS 相关配置信息，外网访问需要流量、请求费用，建议购买 OSS 资源包
+aliyun:
+  oss:
+    enable: 1 # 是否使用OSS，1-使用，不为 1 或者没有 aliyun.oss 相关配置，则不使用。用于控制是否加载 OSS 服务类
+    # 外网查看、下载会产生流量费用，上传免费。内网都免费。配置内网地址，避免产生流量费用。
+    # 内网：oss-cn-shenzhen-internal.aliyuncs.com 外网：oss-cn-shenzhen.aliyuncs.com
+    endpoint: oss-cn-shenzhen.aliyuncs.com
+    accessKeyId: your accessKeyId of OSS # 访问身份验证中用到用户标识
+    accessKeySecret: your accessKeySecret of OSS # 用户用于加密签名字符串和oss用来验证签名字符串的密钥
+    bucketName: mypages # oss的存储空间
+    policy:
+      expire: 300 # 签名有效期(S)
+    maxSize: 10 # 上传文件大小(M)
+    callback: http://localhost:8081/aliyun/oss/callback # 文件上传成功后的回调地址
+    dir:
+      prefix: #images/ # 上传文件夹路径前缀
+      # 用户头像保存到 OSS
+      avatar: images/user-profile-photo/

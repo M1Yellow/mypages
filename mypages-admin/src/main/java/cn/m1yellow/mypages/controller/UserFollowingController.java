@@ -6,6 +6,7 @@ import cn.m1yellow.mypages.common.aspect.WebLog;
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
 import cn.m1yellow.mypages.common.exception.AtomicityException;
 import cn.m1yellow.mypages.common.exception.FileSaveException;
+import cn.m1yellow.mypages.common.service.OssService;
 import cn.m1yellow.mypages.common.util.CheckParamUtil;
 import cn.m1yellow.mypages.common.util.CommonUtil;
 import cn.m1yellow.mypages.common.util.FileUtil;
@@ -37,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +60,10 @@ public class UserFollowingController {
 
     @Value("${user.avatar.savedir}")
     private String saveDir;
+    @Value("${aliyun.oss.bucketName}")
+    private String ALIYUN_OSS_BUCKET_NAME;
+    @Value("${aliyun.oss.dir.avatar}")
+    private String ALIYUN_OSS_DIR_AVATAR;
 
     @Autowired
     private UserFollowingService userFollowingService;
@@ -65,6 +71,8 @@ public class UserFollowingController {
     private UserFollowingRelationService userFollowingRelationService;
     @Autowired
     private UserFollowingRemarkService userFollowingRemarkService;
+    @Autowired
+    private OssService ossService;
 
 
     /*
@@ -153,7 +161,9 @@ public class UserFollowingController {
 
         if (profile != null) {
             // 获取新头像相对路径
-            String newFilePath = FileUtil.getFilePath(UserFollowingController.class, profile, saveDir, oldFilePath, true, false);
+            //String newFilePath = FileUtil.getFilePath(UserFollowingController.class, profile, saveDir, oldFilePath, true, false);
+            // OSS 相对路径
+            String newFilePath = FileUtil.getFilePath(UserFollowingController.class, profile, ALIYUN_OSS_DIR_AVATAR, oldFilePath, true, false);
             log.info(">>>> init newFilePath: {}", newFilePath);
             // 设置新头像路径
             following.setProfilePhoto(newFilePath);
@@ -315,11 +325,49 @@ public class UserFollowingController {
         if (!following.getIsUser()) { // 非用户
             if (profile != null) {
                 // saveFile 文件保存出错会抛出自定义文件保存异常，整个方法的事务回滚
-                saveFile(profile, oldFilePath, following.getProfilePhoto());
+                //saveFile(profile, oldFilePath, following.getProfilePhoto());
+                // 保存到 OSS
+                saveFileToOSS(profile, oldFilePath, following.getProfilePhoto());
             }
         }
 
         return CommonResult.success(followingItem);
+    }
+
+
+    /**
+     * 保存头像文件到OSS
+     *
+     * @param profile
+     * @param oldFilePath
+     * @param newFilePath
+     */
+    private void saveFileToOSS(MultipartFile profile, String oldFilePath, String newFilePath) {
+        InputStream is = null;
+        try {
+            is = profile.getInputStream();
+            boolean result = ossService.saveFile(ALIYUN_OSS_BUCKET_NAME, is, oldFilePath, newFilePath);
+            if (!result) {
+                // 抛出自定义文件保存异常，回滚前面的数据操作
+                throw new FileSaveException("保存用户头像失败");
+            }
+        } catch (Exception e) {
+            log.error("OSS 保存文件异常:{}", e.getMessage());
+            // TODO 出现异常，删除上传文件，不管是否已经上传成功
+            ossService.delete(ALIYUN_OSS_BUCKET_NAME, newFilePath);
+            // 抛出自定义文件保存异常，回滚前面的数据操作
+            throw new FileSaveException("保存用户头像失败");
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.error("OSS 文件流关闭异常", e);
+                    // 抛出自定义文件保存异常，回滚前面的数据操作
+                    //throw new FileSaveException("保存用户头像失败");
+                }
+            }
+        }
     }
 
 

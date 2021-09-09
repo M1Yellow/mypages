@@ -58,7 +58,7 @@
         <swagger-models.version>1.5.22</swagger-models.version>
         <swagger-annotations.version>1.5.22</swagger-annotations.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <jsoup.version>1.13.1</jsoup.version>
+        <jsoup.version>1.14.2</jsoup.version>
         <gson.version>2.8.6</gson.version>
         <fastjson.version>1.2.75</fastjson.version>
         <jjwt-version>0.9.1</jjwt-version><!-- jjwt 整合库 -->
@@ -69,8 +69,9 @@
         <docker-maven-plugin.version>1.2.2</docker-maven-plugin.version>
         <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
         <tomcat8-maven-plugin.version>3.0-r1756463</tomcat8-maven-plugin.version>
-        <elasticsearch.version>7.13.0</elasticsearch.version>
+        <elasticsearch.version>7.13.3</elasticsearch.version>
         <logstash.version>6.6</logstash.version>
+        <aliyun-sdk-oss.version>3.12.0</aliyun-sdk-oss.version>
         <mypages-common.version>1.0.0</mypages-common.version>
         <mypages-security.version>1.0.0</mypages-security.version>
         <mypages-generator.version>1.0.0</mypages-generator.version>
@@ -351,6 +352,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-amqp</artifactId>
                 <version>${springboot.version}</version>
+            </dependency>
+            <!-- 阿里云 对象存储 OSS SDK -->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun-sdk-oss.version}</version>
             </dependency>
 
         </dependencies>
