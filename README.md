@@ -137,6 +137,7 @@ mypages -- 项目目录
 | Jenkins              | 自动化部署工具 `2.60.3`          | https://github.com/jenkinsci/jenkins/          |
 | Lombok               | 简化对象封装工具 `1.18.18`       | https://github.com/rzwitserloot/lombok/        |
 | Swagger-UI           | 文档生成工具 `2.9.2`            | https://github.com/swagger-api/swagger-ui/     |
+| OSS                  | 对象存储服务 `3.12.0`           | https://github.com/aliyun/aliyun-oss-java-sdk/ |
 
 
 ## 开发环境与工具
@@ -155,7 +156,7 @@ mypages -- 项目目录
 ## 部署运行
 1. 下载并安装开发环境和工具
 2. 克隆项目到本地，用 IDEA 打开项目
-3. 配置 Maven 并下载项目依赖
+3. 配置 Maven 环境并下载项目依赖
 4. 导入数据库脚本，初始化数据
 5. 修改对应环境的 `application-xxx.yml` 配置文件，配置 MySQL、Redis 连接信息
 6. 从入口启动类启动项目
@@ -166,6 +167,6 @@ mypages -- 项目目录
 
 
 ## 项目参考
-| 项目           | 作者                 | 项目地址                                         | 说明                            |
+| 项目           | 作者                 | 地址                                         | 说明                            |
 | ------------- | ------------------- | ----------------------------------------------- | ------------------------------ |
 | mall          | macrozheng          | https://github.com/macrozheng/mall/             | 代码结构、文档规范，期待后续更新     |
