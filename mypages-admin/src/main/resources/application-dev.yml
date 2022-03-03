@@ -6,45 +6,72 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456.a
-    initialization-mode: always
-    continue-on-error: true
-    type: com.zaxxer.hikari.HikariDataSource
-    #type: com.alibaba.druid.pool.DruidDataSource
+    #initialization-mode: always
+    #continue-on-error: true
+    #type: com.zaxxer.hikari.HikariDataSource
+    type: com.alibaba.druid.pool.DruidDataSource
     # hikari 连接池配置
-    hikari:
-      auto-commit: true # 自动提交从池中返回的连接
-      minimum-idle: 5 # 最小空闲连接，默认值10，小于0或大于maximum-pool-size，都会重置为maximum-pool-size
-      maximum-pool-size: 10 # 最大连接数，小于等于0会被重置为默认值10；大于零小于1会被重置为minimum-idle的值
-      idle-timeout: 50000 # 空闲连接超时时间，默认值600000（10分钟），大于等于max-lifetime且max-lifetime>0，会被重置为0；不等于0且小于10秒，会被重置为10秒
-      max-lifetime: 60000 # 连接最大存活时间，不等于0且小于30秒，会被重置为默认值30分钟.设置应该比mysql设置的超时时间短
-      connection-timeout: 60000 # 连接超时时间：毫秒，小于250毫秒，否则被重置为默认值30秒
-      connection-test-query: select 1 # 用于测试连接是否可用的查询语句
-      pool-name: HikariPool-admin # 连接池的用户定义名称，主要出现在日志记录和JMX管理控制台中以识别池和池配置
-      read-only: false # 从池中获取的连接是否默认处于只读模式
-      # druid 连接池配置
-      # Spring Boot 默认是不注入这些属性值的，需要自己绑定
-      #druid:
-      #initialSize: 5
-      #minIdle: 5
-      #maxActive: 20
-      #maxWait: 60000
-      #timeBetweenEvictionRunsMillis: 60000
-      #minEvictableIdleTimeMillis: 300000
-      #validationQuery: SELECT 1 FROM DUAL
-      #testWhileIdle: true
-      #testOnBorrow: false
-      #testOnReturn: false
-      #poolPreparedStatements: true
+#    hikari:
+#      auto-commit: true # 自动提交从池中返回的连接
+#      minimum-idle: 5 # 最小空闲连接，默认值10，小于0或大于maximum-pool-size，都会重置为maximum-pool-size
+#      maximum-pool-size: 10 # 最大连接数，小于等于0会被重置为默认值10；大于零小于1会被重置为minimum-idle的值
+#      idle-timeout: 50000 # 空闲连接超时时间，默认值600000（10分钟），大于等于max-lifetime且max-lifetime>0，会被重置为0；不等于0且小于10秒，会被重置为10秒
+#      max-lifetime: 60000 # 连接最大存活时间，不等于0且小于30秒，会被重置为默认值30分钟.设置应该比mysql设置的超时时间短
+#      connection-timeout: 60000 # 连接超时时间：毫秒，小于250毫秒，否则被重置为默认值30秒
+#      connection-test-query: select 1 # 用于测试连接是否可用的查询语句
+#      pool-name: HikariPool-admin # 连接池的用户定义名称，主要出现在日志记录和JMX管理控制台中以识别池和池配置
+#      read-only: false # 从池中获取的连接是否默认处于只读模式
+
+    # druid 连接池配置，注意：Spring Boot 2.3 可以自动绑定配置，不用额外写配置类了，写了反而加载不到配置
+    druid:
+      initialSize: 5 # 初始连接数量
+      minIdle: 5 # 最小空闲连接数量
+      maxActive: 10 # 最大连接数量
+      maxWait: 60000 # 获取连接等待超时的时间
+      timeBetweenEvictionRunsMillis: 60000 # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      minEvictableIdleTimeMillis: 1800000 # 一个连接在池中最小生存的时间，也就是连接空闲多少时间后被回收，单位是毫秒
+      validationQuery: SELECT 1 # 用来检测连接是否有效的sql，要求是一个查询语句。如果validationQuery为null，testOnBorrow、testOnReturn、testWhileIdle都不会其作用。Oracle 语句为 SELECT 1 FROM DUAL
+      #validation-query-timeout: 5000 # 验证超时时间
+      testWhileIdle: true # 指明连接是否被空闲连接回收器(如果有)进行检验。如果检测失败，则连接将被从池中去除。
+      testOnBorrow: false # 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      testOnReturn: false # 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      # testOnBorrow和testOnReturn在生产环境一般是不开启的，主要是性能考虑。失效连接主要通过testWhileIdle保证，如果获取到了不可用的数据库连接，一般由应用处理异常
+      #poolPreparedStatements: true # 是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。
+      #max-pool-prepared-statement-per-connection-size: 20 # 要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100
       # 配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入
-      # 如果允许时报错  java.lang.ClassNotFoundException: org.apache.log4j.Priority
-      # 则导入 log4j 依赖即可，Maven 地址：https://mvnrepository.com/artifact/log4j/log4j
-      #filters: stat,wall,log4j
-      # 指定每个连接上PSCache的大小
-      #maxPoolPreparedStatementPerConnectionSize: 20
+      # 如果运行时报错 java.lang.ClassNotFoundException: org.apache.log4j.Priority 需要添加 log4j 依赖
+      filters: stat,wall # stat,wall,log4j
+      filter:
+        stat:
+          enabled: true
+          db-type: mysql # 常见数据库能自动识别
+          log-slow-sql: true
+          slow-sql-millis: 5000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true # 是否允许一次执行多条语句，缺省关闭
+      # 配置 Druid web 监控 filter过滤器 WebStatFilter
+      web-stat-filter:
+        enabled: true
+        url-pattern: /* # 过滤所有url
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*" # 排除一些不必要的url
+        session-stat-enable: true # 开启session统计功能
+        session-stat-max-count: 500 # session最大数，缺省sessionStatMaxCount是1000个
+        profile-enable: true # 监控单个url调用的sql列表
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: 123456.a
+        allow: "" # 白名单（如果allow没有配置或者为空，则允许所有访问）
+        deny: "" # 黑名单（deny优先于allow，如果在deny列表中，就算在allow列表中，也会被拒绝）
+        reset-enable: false # 是否允许重置清空统计数据
       # 合并多个DruidDataSource的监控数据
       #useGlobalDataSourceStat: true
       # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
       #connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
   redis:
     # 注意，项目和 redis 不在同一台服务器上，需要开放 redis 端口
     host: 192.168.137.151
@@ -59,10 +86,11 @@ spring:
           adaptive: true # 是否允许周期性更新集群拓扑视图，默认 false
           dynamic-refresh-sources: true # 是否允许动态刷新拓扑资源，默认 true
           period: 30 # 更新集群拓扑视图周期，默认 60 秒
+
   cache: # spirng 缓存管理参数配置
     redis:
       time-to-live: 86400000 # 毫秒，一天 24 * 60 * 60 * 1000
-  # rabbitmq 配置
+
   rabbitmq:
     username: admin
     password: 123456.a

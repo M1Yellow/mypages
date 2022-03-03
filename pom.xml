@@ -43,10 +43,9 @@
         <springboot.version>2.3.10.RELEASE</springboot.version>
         <springcloud.version>Hoxton.SR11</springcloud.version>
         <springcloud-alibaba.version>2.2.1.RELEASE</springcloud-alibaba.version>
-        <mysql-connector.version>8.0.22</mysql-connector.version><!-- MySQL 连接驱动版本 -->
-        <druid-starter.version>1.1.22</druid-starter.version><!-- druid 连接池 -->
+        <mysql-connector.version>8.0.25</mysql-connector.version><!-- MySQL 连接驱动版本 -->
+        <druid-starter.version>1.2.8</druid-starter.version><!-- druid 连接池 -->
         <mybatis.version>2.1.4</mybatis.version>
-        <mybatis-plus.version>3.4.2</mybatis-plus.version>
         <mybatis-plus-starter.version>3.4.2</mybatis-plus-starter.version>
         <mpg.version>3.4.1</mpg.version><!-- mybatis-plus 代码生成器 -->
         <velocity-core.version>2.2</velocity-core.version><!-- mybatis-plus 代码生成器需要的模板引擎 -->
@@ -58,19 +57,19 @@
         <swagger-models.version>1.5.22</swagger-models.version>
         <swagger-annotations.version>1.5.22</swagger-annotations.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <jsoup.version>1.14.2</jsoup.version>
-        <gson.version>2.8.6</gson.version>
-        <fastjson.version>1.2.75</fastjson.version>
+        <jsoup.version>1.14.3</jsoup.version>
+        <gson.version>2.9.0</gson.version>
+        <fastjson.version>1.2.79</fastjson.version>
         <jjwt-version>0.9.1</jjwt-version><!-- jjwt 整合库 -->
         <jjwt-api-version>0.11.2</jjwt-api-version><!-- jjwt 各部分单独库 -->
         <jjwt-impl-version>0.11.2</jjwt-impl-version>
         <jjwt-jackson-version>0.11.2</jjwt-jackson-version>
-        <hutool-version>5.6.3</hutool-version>
+        <hutool-version>5.7.20</hutool-version>
         <docker-maven-plugin.version>1.2.2</docker-maven-plugin.version>
         <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
         <tomcat8-maven-plugin.version>3.0-r1756463</tomcat8-maven-plugin.version>
-        <elasticsearch.version>7.13.3</elasticsearch.version>
-        <logstash.version>6.6</logstash.version>
+        <elasticsearch.version>7.17.0</elasticsearch.version>
+        <logstash.version>7.0.1</logstash.version>
         <aliyun-sdk-oss.version>3.12.0</aliyun-sdk-oss.version>
         <mypages-common.version>1.0.0</mypages-common.version>
         <mypages-security.version>1.0.0</mypages-security.version>

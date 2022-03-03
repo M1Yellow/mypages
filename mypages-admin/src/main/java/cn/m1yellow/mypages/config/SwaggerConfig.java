@@ -39,7 +39,7 @@ public class SwaggerConfig {
 
     @Bean
     public Docket docket(Environment environment) {
-        // 判断只在开放和测试环境开启
+        // 判断只在开发和测试环境开启
         Profiles profiles = Profiles.of("dev", "test");
         boolean enableSwagger = environment.acceptsProfiles(profiles);
 

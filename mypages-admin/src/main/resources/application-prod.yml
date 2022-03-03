@@ -2,67 +2,44 @@ server:
   port: 8081
 spring:
   datasource:
-    # 【注意！！生产环境配置信息不要提交Git】
+    # 【注意！！真实的生产环境线上配置信息不要提交Git】
     url: jdbc:mysql://127.23.199.172:3306/mypages?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=GMT%2B8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456.a
-    initialization-mode: always
-    continue-on-error: true
-    type: com.zaxxer.hikari.HikariDataSource
-    #type: com.alibaba.druid.pool.DruidDataSource
-    # hikari 连接池配置
-    hikari:
-      auto-commit: true # 自动提交从池中返回的连接
-      minimum-idle: 10 # 最小空闲连接，默认值10，小于0或大于maximum-pool-size，都会重置为maximum-pool-size
-      maximum-pool-size: 50 # 最大连接数，小于等于0会被重置为默认值10；大于零小于1会被重置为minimum-idle的值
-      idle-timeout: 50000 # 空闲连接超时时间，默认值600000（10分钟），大于等于max-lifetime且max-lifetime>0，会被重置为0；不等于0且小于10秒，会被重置为10秒
-      max-lifetime: 60000 # 连接最大存活时间，不等于0且小于30秒，会被重置为默认值30分钟.设置应该比mysql设置的超时时间短
-      connection-timeout: 60000 # 连接超时时间：毫秒，小于250毫秒，否则被重置为默认值30秒
-      connection-test-query: select 1 # 用于测试连接是否可用的查询语句
-      pool-name: HikariPool-admin # 连接池的用户定义名称，主要出现在日志记录和JMX管理控制台中以识别池和池配置
-      read-only: false # 从池中获取的连接是否默认处于只读模式
-      # druid 连接池配置
-      # Spring Boot 默认是不注入这些属性值的，需要自己绑定
-      #druid:
-      #initialSize: 5
-      #minIdle: 5
-      #maxActive: 20
-      #maxWait: 60000
-      #timeBetweenEvictionRunsMillis: 60000
-      #minEvictableIdleTimeMillis: 300000
-      #validationQuery: SELECT 1 FROM DUAL
-      #testWhileIdle: true
-      #testOnBorrow: false
-      #testOnReturn: false
-      #poolPreparedStatements: true
-      # 配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入
-      # 如果允许时报错  java.lang.ClassNotFoundException: org.apache.log4j.Priority
-      # 则导入 log4j 依赖即可，Maven 地址：https://mvnrepository.com/artifact/log4j/log4j
-      #filters: stat,wall,log4j
-      # 指定每个连接上PSCache的大小
-      #maxPoolPreparedStatementPerConnectionSize: 20
-      # 合并多个DruidDataSource的监控数据
-      #useGlobalDataSourceStat: true
-      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
-      #connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initialSize: 5 # 初始连接数量
+      minIdle: 10 # 最小空闲连接数量
+      maxActive: 20 # 最大连接数量
+      maxWait: 60000 # 获取连接等待超时的时间
+      timeBetweenEvictionRunsMillis: 60000 # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      minEvictableIdleTimeMillis: 600000 # 一个连接在池中最小生存的时间，也就是连接空闲多少时间后被回收，单位是毫秒
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      filters: stat,wall # 启用监控和防SQL注入
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 5000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+
   redis:
     host: 127.23.199.172
     port: 6379
     username: default
     password: 123456.a
     timeout: 10000 # 连接超时时间（毫秒）
-    lettuce:
-      shutdown-timeout: 10000ms # 默认 100ms
-      cluster:
-        refresh:
-          adaptive: true # 是否允许周期性更新集群拓扑视图，默认 false
-          dynamic-refresh-sources: true # 是否允许动态刷新拓扑资源，默认 true
-          period: 30 # 更新集群拓扑视图周期，默认 60 秒
+
   cache: # spirng 缓存管理参数配置
     redis:
       time-to-live: 86400000 # 毫秒，一天 24 * 60 * 60 * 1000
-  # rabbitmq 配置
+
   rabbitmq:
     username: admin
     password: 123456.a
