@@ -1,5 +1,6 @@
 package cn.m1yellow.mypages.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -47,7 +48,15 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * HttpClient 封装工具类，使用了连接池管理
+ * <br>
+ * 为什么使用连接池？
+ * 连接池和线程池优点类似，连接主要是创建、销毁会消耗资源和时间，及tcp创建需要经过三次握手，销毁需要经过四次挥手。消耗的资源主要包括CPU、内存
+ * 需要避免创建和销毁是针对同一个路由（域名+端口）的，连接池是每个host的连接池。使用连接池能避免和同一个路由频繁建立和销毁连接。
+ * <br>
+ * 什么时候需要使用httpclient连接池？
+ * 请求路由基本不会，且请求量大的场景，比如，抓取网页数据
  */
+@Slf4j
 public class HttpClientUtil {
 
     /**
@@ -58,23 +67,33 @@ public class HttpClientUtil {
     /**
      * 连接池最大连接数量，默认20，按需扩大
      */
-    public static final int DEFAULT_POOL_MAX_TOTAL = 20;
+    public static final int DEFAULT_POOL_MAX_TOTAL = 1000;
     /**
      * 每个路由（ip+port）最大连接数量，默认2
      */
-    public static final int DEFAULT_POOL_MAX_PER_ROUTE = 5;
+    public static final int DEFAULT_POOL_MAX_PER_ROUTE = 100;
     /**
      * tcp connect的超时时间，单位：毫秒
      */
-    public static final int DEFAULT_CONNECT_TIMEOUT = 5000;
+    public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
     /**
      * tcp io的读写超时时间，也就是从请求网页获取响应内容超时时间，单位：毫秒
      */
-    public static final int DEFAULT_SOCKET_TIMEOUT = 3000;
+    public static final int DEFAULT_SOCKET_TIMEOUT = 20000;
     /**
      * 从连接池获取连接的超时时间，单位：毫秒
      */
-    public static final int DEFAULT_CONNECT_REQUEST_TIMEOUT = 1000;
+    public static final int DEFAULT_CONNECT_REQUEST_TIMEOUT = 12000;
+    /**
+     * 清理闲置连接时间间隔，单位：毫秒
+     * 业务量大的，可以减小清理周期
+     */
+    public static final int DEFAULT_CLEAN_IDLE_CONN_TIME = 5 * 60 * 1000;
+    /**
+     * 指定清理连接空闲时间（就是这个连接空闲了多久会被清理），单位：毫秒
+     * 如果请求路由（域名+端口）不多，固定几个，闲置时间可以长一点，如果大都是随机路由，则配置小一点
+     */
+    public static final int DEFAULT_CONN_IDLE_TIME = 5 * 60 * 1000;
 
 
     /**
@@ -88,28 +107,22 @@ public class HttpClientUtil {
     private static HttpClientUtil.IdleConnectionMonitorThread idleThread = null;
 
 
-    /** 静态代码块初始化配置 */
+    // 静态代码块初始化配置
     static {
-        /**
-         * 绕过不安全的 https 请求的证书认证
-         */
+        // 绕过不安全的 https 请求的证书认证
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 //.register("https", SSLConnectionSocketFactory.getSocketFactory())
                 .register("https", trustHttpsCertificates()) // 自定义
                 .build();
 
-        /**
-         * 创建连接池
-         */
+        // 创建连接池
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
         cm.setMaxTotal(DEFAULT_POOL_MAX_TOTAL);
         cm.setDefaultMaxPerRoute(DEFAULT_POOL_MAX_PER_ROUTE);
         httpClientBuilder.setConnectionManager(cm);
 
-        /**
-         * 设置请求默认配置
-         */
+        // 设置请求默认配置
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(DEFAULT_CONNECT_TIMEOUT)                     // 设置连接超时
                 .setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)                       // 设置读取超时
@@ -117,18 +130,16 @@ public class HttpClientUtil {
                 .build();
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
 
-        /**
-         * 设置默认 header 参数
-         */
+        // 设置默认 header 参数
         List<Header> defaultHeaders = new ArrayList<>();
         BasicHeader userAgentHeader = new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36");
         defaultHeaders.add(userAgentHeader);
         httpClientBuilder.setDefaultHeaders(defaultHeaders);
 
-        /**
-         * 启动闲置连接管理线程
-         * 静态类 HttpClientUtil 首次被调用的时候，执行 static 代码块
-         */
+        // 多个 client 共享配置，有助于多线程稳定执行
+        httpClientBuilder.setConnectionManagerShared(true);
+
+        // 启动闲置连接管理线程
         idleThread = new IdleConnectionMonitorThread(cm);
         idleThread.start();
 
@@ -162,9 +173,8 @@ public class HttpClientUtil {
                     new String[]{"SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"},
                     null, NoopHostnameVerifier.INSTANCE);
         } catch (Exception e) {
-            //log.error("构建安全连接工厂失败: ", e);
-            e.printStackTrace();
-            throw new RuntimeException("构建安全连接工厂失败");
+            log.error("创建安全连接工厂失败: {}", e.getMessage());
+            throw new RuntimeException("创建安全连接工厂失败");
         }
     }
 
@@ -192,24 +202,21 @@ public class HttpClientUtil {
 
         @Override
         public void run() {
-            //log.info(">>>> IdleConnectionMonitorThread is running...");
-            System.out.println(">>>> IdleConnectionMonitorThread is running...");
+            log.info(">>>> IdleConnectionMonitorThread is running...");
             try {
                 while (!exitFlag) {
                     synchronized (this) {
-                        wait(5000);
+                        wait(DEFAULT_CLEAN_IDLE_CONN_TIME);
                         // 关闭失效的连接
                         connMgr.closeExpiredConnections();
                         // 可选的, 关闭指定时间内空闲（不活动的）连接
-                        connMgr.closeIdleConnections(5 * 60, TimeUnit.SECONDS);
+                        connMgr.closeIdleConnections(DEFAULT_CONN_IDLE_TIME, TimeUnit.MILLISECONDS);
                     }
                 }
             } catch (Exception e) {
-                //log.error(">>>> IdleConnectionMonitorThread error: ", e);
-                e.printStackTrace();
+                log.error(">>>> IdleConnectionMonitorThread clean connection error: {}", e.getMessage());
             }
-            //log.info(">>>> IdleConnectionMonitorThread stopped.");
-            System.out.println(">>>> IdleConnectionMonitorThread stopped.");
+            log.info(">>>> IdleConnectionMonitorThread stopped.");
         }
 
         public void shutdown() {
@@ -271,12 +278,10 @@ public class HttpClientUtil {
                     return EntityUtils.toString(entityRes, StandardCharsets.UTF_8);
                 }
             } else {
-                //log.error(">>>> doGet failure, url: {}, code: {}", url, statusCode);
-                System.out.println(">>>> doGet failure, code: " + statusCode);
+                log.error(">>>> doGet failure, url: {}, code: {}", url, statusCode);
             }
         } catch (Exception e) {
-            //log.error(">>>> doGet error, url: {}, e: {}", url, e.getMessage());
-            e.printStackTrace();
+            log.error(">>>> doGet error, url: {}, e: {}", url, e.getMessage());
         } finally {
             // 关闭响应资源
             HttpClientUtils.closeQuietly(response);
@@ -333,12 +338,10 @@ public class HttpClientUtil {
                     return EntityUtils.toString(entityRes, StandardCharsets.UTF_8);
                 }
             } else {
-                //log.error(">>>> doPost failure, url: {}, code: {}", apiUrl, statusCode);
-                System.out.println(">>>> doPost failure, code: " + statusCode);
+                log.error(">>>> doPost failure, url: {}, code: {}", apiUrl, statusCode);
             }
         } catch (Exception e) {
-            //log.error(">>>> doPost error, url: {}, e: {}", apiUrl, e.getMessage());
-            e.printStackTrace();
+            log.error(">>>> doPost error, url: {}, e: {}", apiUrl, e.getMessage());
         } finally {
             // 关闭响应资源
             HttpClientUtils.closeQuietly(response);
@@ -421,8 +424,7 @@ public class HttpClientUtil {
                     if (StringUtils.isNotBlank(newFileMd5) && StringUtils.isNotBlank(originalFileMd5)
                             && newFileMd5.equals(originalFileMd5)) {
                         // 文件 MD5 相同，直接返回，不再继续下载
-                        System.out.println(">>>> 头像文件MD5相同，不再重复下载。newFileMd5 = originalFileMd5: " + newFileMd5);
-                        System.out.println("\n");
+                        log.info(">>>> 头像文件MD5相同，不再重复下载。newFileMd5 = originalFileMd5: " + newFileMd5);
                         return;
                     }
 
@@ -440,7 +442,7 @@ public class HttpClientUtil {
                     ) {
                         // 写入本地文件
                         entity.writeTo(out);
-                        System.out.println(">>>> 用户头像下载完毕：" + file.getAbsolutePath());
+                        log.info(">>>> 用户头像下载完毕：" + file.getAbsolutePath());
                     }
                 }
             }
@@ -531,15 +533,15 @@ public class HttpClientUtil {
                     html = EntityUtils.toString(entity, DEFAULT_CHARSET);
                 }
             } else {
-                System.out.println(statusCode);
+                log.debug(">>>> getHtml statusCode: {}", statusCode);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(">>>> getHtml error: {}", e.getMessage());
         } finally {
             try {
                 EntityUtils.consume(entity);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                log.error(">>>> getHtml release entity error: {}", e.getMessage());
             }
         }
 

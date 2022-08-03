@@ -2,9 +2,9 @@ package cn.m1yellow.mypages.security.component;
 
 import cn.m1yellow.mypages.common.api.CommonResult;
 import cn.m1yellow.mypages.common.aspect.RateLimit;
-import cn.m1yellow.mypages.security.service.RateLimitService;
-import cn.m1yellow.mypages.common.util.FastJsonUtil;
 import cn.m1yellow.mypages.common.util.HeaderUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
+import cn.m1yellow.mypages.security.service.RateLimitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,7 +38,7 @@ public class RateLimitInterceptor extends HandlerInterceptorAdapter {
             String uri = request.getRequestURI();
             if (!rateLimitService.limit(ip, uri, rateLimit)) {
                 response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write(FastJsonUtil.bean2Json(CommonResult.failed(rateLimit.msg())));
+                response.getWriter().write(JSONUtil.toJSON(CommonResult.failed(rateLimit.msg())));
                 response.setStatus(HttpStatus.OK.value());
                 return false;
             }

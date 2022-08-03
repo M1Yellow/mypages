@@ -154,7 +154,6 @@ public class DoCacheAspect {
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage());
-                    //e.printStackTrace();
                 }
 
             }

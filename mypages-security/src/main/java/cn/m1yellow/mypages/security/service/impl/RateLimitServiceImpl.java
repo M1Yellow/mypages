@@ -30,7 +30,7 @@ public class RateLimitServiceImpl implements RateLimitService {
             }
             // 未超出访问次数限制，不进行任何操作，返回true
         } else {
-            // 第一次设置数据，过期时间为注解确定的访问周期
+            // 第一次设置数据，过期时间为注解配置的访问周期
             redisUtil.set(key, 1, rateLimit.cycle());
         }
         return true;

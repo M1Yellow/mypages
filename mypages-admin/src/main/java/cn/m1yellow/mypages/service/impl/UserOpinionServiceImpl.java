@@ -59,7 +59,6 @@ public class UserOpinionServiceImpl extends ServiceImpl<UserOpinionMapper, UserO
                 try {
                     recordNo = Integer.parseInt(recordNoStr);
                 } catch (NumberFormatException e) {
-                    //e.printStackTrace();
                     recordNo = (pageNo - 1) * pageSize;
                 }
             }

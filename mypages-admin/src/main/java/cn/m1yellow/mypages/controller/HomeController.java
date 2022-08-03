@@ -4,7 +4,7 @@ import cn.m1yellow.mypages.common.api.CommonResult;
 import cn.m1yellow.mypages.common.aspect.RateLimit;
 import cn.m1yellow.mypages.common.aspect.WebLog;
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
-import cn.m1yellow.mypages.common.util.FastJsonUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
 import cn.m1yellow.mypages.common.util.RedisUtil;
 import cn.m1yellow.mypages.dto.UserFollowingDto;
@@ -17,6 +17,7 @@ import cn.m1yellow.mypages.vo.home.UserFollowingItem;
 import cn.m1yellow.mypages.vo.home.UserFollowingTypeItem;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -248,9 +249,10 @@ public class HomeController {
             platformListCache = ObjectUtil.getString(redisUtil.get(GlobalConstant.HOME_PLATFORM_LIST_DEFAULT_CACHE_KEY));
         }
         if (StringUtils.isNotBlank(platformListCache)) {
-            // gson 对层层嵌套的复杂对象，由于序列化泛型擦除，类型对应不上，会导致页面解析不了！
-            // fastJson debug 能对应上类型，页面也能解析对应类型
-            platformItemList = FastJsonUtil.json2List(platformListCache, PlatformItem.class);
+            // gson 对层层嵌套的复杂对象，由于序列化泛型擦除，类型对应不上，反序列化的对象数据不对，导致页面解析不了！
+            // fastJson 能对应上类型，页面也能解析对应类型【但是漏洞太多了，改用 jackson】
+            platformItemList = JSONUtil.toBean(platformListCache, new TypeReference<List<PlatformItem>>() {
+            });
         }
 
         return platformItemList;

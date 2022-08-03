@@ -14,6 +14,7 @@ import cn.m1yellow.mypages.service.UserFollowingService;
 import cn.m1yellow.mypages.vo.home.UserFollowingItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -365,7 +366,7 @@ public class UserFollowingServiceImpl extends ServiceImpl<UserFollowingMapper, U
             if (StringUtils.isBlank(cacheKeyChild)) { // 没有传入 pageNo，设置跟 hash 同名的字段值
                 cacheKeyChild = cacheKey;
             }
-            redisUtil.hset(cacheKey, cacheKeyChild, FastJsonUtil.bean2Json(followingItemPage), cacheTime);
+            redisUtil.hset(cacheKey, cacheKeyChild, JSONUtil.toJSON(followingItemPage), cacheTime);
             return null;
         } else { // 获取缓存
             if (StringUtils.isBlank(cacheKeyChild)) { // 没有传入 pageNo，查询跟 hash 同名的字段值
@@ -373,7 +374,8 @@ public class UserFollowingServiceImpl extends ServiceImpl<UserFollowingMapper, U
             }
             String cacheStr = ObjectUtil.getString(redisUtil.hget(cacheKey, cacheKeyChild));
             if (StringUtils.isNotBlank(cacheStr)) {
-                Page<UserFollowingItem> itemListPage = FastJsonUtil.json2Bean(cacheStr, Page.class);
+                Page<UserFollowingItem> itemListPage = JSONUtil.toBean(cacheStr, new TypeReference<Page<UserFollowingItem>>() {
+                });
                 if (itemListPage != null) {
                     return itemListPage;
                 }

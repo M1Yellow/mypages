@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * 系统配置控制类
- * 实现 ErrorController 接口，用于重写 error 返回信息，统一 restful 接口数据格式
+ * 实现 ErrorController 接口，用于控制全局异常 error 返回信息，统一 restful 接口数据格式
  * <br>
  * 特性	        @ExceptionHandler	                        ErrorController
  * 获取异常	方法参数直接注入了异常类型	                通过 instanceof 自定义 ErrorInfoBuilder 工具类获取
@@ -48,7 +48,7 @@ public class SysConfigController implements ErrorController {
     }
 
 
-    @ApiOperation("错误提示信息")
+    @ApiOperation("全局异常处理")
     // @RequestMapping(value = "${server.error.path:/error}"
     @RequestMapping(value = "error", method = {RequestMethod.GET}, produces = "application/json;charset=utf-8")
     public CommonResult<Object> globalErrorHandler(HttpServletRequest request, HttpServletResponse response, Exception e) {
@@ -75,6 +75,7 @@ public class SysConfigController implements ErrorController {
         }
     }
 
+
     @ApiOperation("全局参数列表")
     @RequestMapping(value = "properties", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     @WebLog
@@ -88,8 +89,11 @@ public class SysConfigController implements ErrorController {
 
         properties.put("sortValues", sortValues);
 
+        properties.get("test").toString().equals("");
+
         return CommonResult.success(properties);
     }
+
 
     @ApiOperation("根据KEY删除redis缓存")
     @RequestMapping(value = "delRedisCache", method = RequestMethod.GET, produces = "application/json;charset=utf-8")

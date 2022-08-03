@@ -7,10 +7,7 @@ import cn.m1yellow.mypages.common.constant.GlobalConstant;
 import cn.m1yellow.mypages.common.exception.AtomicityException;
 import cn.m1yellow.mypages.common.exception.FileSaveException;
 import cn.m1yellow.mypages.common.service.OssService;
-import cn.m1yellow.mypages.common.util.CheckParamUtil;
-import cn.m1yellow.mypages.common.util.CommonUtil;
-import cn.m1yellow.mypages.common.util.FileUtil;
-import cn.m1yellow.mypages.common.util.ObjectUtil;
+import cn.m1yellow.mypages.common.util.*;
 import cn.m1yellow.mypages.constant.PlatformInfo;
 import cn.m1yellow.mypages.dto.UserFollowingDto;
 import cn.m1yellow.mypages.entity.UserFollowing;
@@ -21,7 +18,6 @@ import cn.m1yellow.mypages.service.UserFollowingRelationService;
 import cn.m1yellow.mypages.service.UserFollowingRemarkService;
 import cn.m1yellow.mypages.service.UserFollowingService;
 import cn.m1yellow.mypages.vo.home.UserFollowingItem;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiOperation;
@@ -71,12 +67,14 @@ public class UserFollowingController {
     private UserFollowingRelationService userFollowingRelationService;
     @Autowired
     private UserFollowingRemarkService userFollowingRemarkService;
-    @Autowired
+    @Autowired(required = false)
     private OssService ossService;
 
 
     /*
     // TODO 技术知识点回顾记录，温故而知新
+    @RequestMapping produces 指定返回数据类型和编码，可以防止中文乱码。而 @ResponseBody、@RestController 是 json 类型
+
     @RequestPart与@RequestParam的区别
     @RequestPart这个注解用在multipart/form-data表单提交请求的方法上。 支持的请求方法的方式MultipartFile，属于Spring的MultipartResolver类。这个请求是通过http协议传输的。
     @RequestParam也同样支持multipart/form-data请求。 他们最大的不同是，当请求方法的请求参数类型不再是String类型的时候。
@@ -94,6 +92,7 @@ public class UserFollowingController {
     @ApiOperation("添加/更新关注用户")
     @Transactional //(rollbackFor = {AtomicityException.class, FileSaveException.class})
     @RequestMapping(value = "add", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    //@ResponseBody Controller 类使用了 @RestController，每个方法不用单独再设置
     @WebLog
     // TODO 【清除多个缓存】新增或修改关注用户，清除首页缓存、分页缓存
     @Caching(evict = {
@@ -263,7 +262,7 @@ public class UserFollowingController {
         List<UserFollowingRemark> remarkList = null;
         String remarkListJson = following.getRemarkListJson();
         if (StringUtils.isNotBlank(remarkListJson)) {
-            remarkList = JSONObject.parseArray(remarkListJson, UserFollowingRemark.class);
+            remarkList = JSONUtil.toList(remarkListJson, UserFollowingRemark.class);
             // 保存用户标签
             if (remarkList != null && remarkList.size() > 0) {
                 // TODO 校验用户对关注用户添加的标签数量不能超过 10 个，代码常量可配
@@ -362,7 +361,7 @@ public class UserFollowingController {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    log.error("OSS 文件流关闭异常", e);
+                    log.error("OSS 文件流关闭异常", e.getMessage());
                     // 抛出自定义文件保存异常，回滚前面的数据操作
                     //throw new FileSaveException("保存用户头像失败");
                 }
@@ -591,11 +590,13 @@ public class UserFollowingController {
             userFollowingItemList.add(userFollowingItem);
 
             // 避免频繁访问被封
+            /*
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            */
         }
 
         return CommonResult.success(userFollowingItemList);

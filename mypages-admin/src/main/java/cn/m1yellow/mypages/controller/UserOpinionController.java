@@ -105,12 +105,7 @@ public class UserOpinionController {
         }
 
         Page<UserOpinion> opinionListPage = userOpinionService.getPagingList(userId, platformId, typeId, pageNo, pageSize, params);
-        /*
-        List<UserOpinion> opinionList = null;
-        if (opinionListPage != null) {
-            opinionList = opinionListPage.getRecords();
-        }
-        */
+
         return CommonResult.success(opinionListPage);
     }
 

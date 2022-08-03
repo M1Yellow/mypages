@@ -39,16 +39,16 @@ mypages -- 项目目录
 │   │   │   │   └── cn
 │   │   │   │       └── m1yellow
 │   │   │   │           └── mypages
-│   │   │   │               ├── bo -- 业务数据封装对象，用于方法调用参数封装
+│   │   │   │               ├── bo -- 业务数据封装对象（bussiness object），用于方法调用参数封装
 │   │   │   │               ├── config -- 项目配置类
 │   │   │   │               ├── constant -- 静态常量
 │   │   │   │               ├── controller -- 控制层
-│   │   │   │               ├── dto -- 数据传输封装对象，用于请求参数封装
+│   │   │   │               ├── dto -- 数据传输封装对象（data transfer object），用于请求参数封装
 │   │   │   │               ├── entity -- 实体类
 │   │   │   │               ├── mapper -- 实体映射
 │   │   │   │               ├── service -- 服务类，里面还有 impl 实现类目录
 │   │   │   │               ├── util -- 工具类
-│   │   │   │               ├── vo -- 页面显示信息封装对象
+│   │   │   │               ├── vo -- 页面显示信息封装对象（view boject），后台数据经过脱敏等处理之后，页面展示
 │   │   │   │               ├── MypagesAdminApplication.java -- 项目启动类
 │   │   │   │               └── ServletInitializer.java -- Tomcat 部署启动类
 │   │   │   └── resources -- 项目资源目录
@@ -62,7 +62,7 @@ mypages -- 项目目录
 │   │   │       ├── templates -- 模板资源
 │   │   │       ├── application-dev.yml -- 开发环境配置
 │   │   │       ├── application-prod.yml -- 生产环境配置
-│   │   │       └── application.yml -- 主配置文件
+│   │   │       └── application.yml -- 主配置文件，全局生效，生产、开发、测试环境通用配置
 │   │   └── test -- 测试资源
 │   │       └── java
 │   │           └── cn
@@ -129,28 +129,27 @@ mypages -- 项目目录
 | MyBatisPlus          | ORM、分页、代码生成 `3.4.2`      | https://baomidou.com/                          |
 | MySQL 	           | 关系型数据库 `5.7.34`           | https://www.mysql.com/                         |
 | Redis	               | 数据缓存中间件 `6.0.14`          | https://redis.io/download/                    |
-| Druid                | 数据库连接池 `1.1.22`            | https://github.com/alibaba/druid/             |
+| Druid                | 数据库连接池 `1.2.8`             | https://github.com/alibaba/druid/             |
 | JWT                  | JWT登录支持 `0.9.1`             | https://github.com/jwtk/jjwt/                 |
 | Docker               | 虚拟应用容器 `20.10.1`           | https://www.docker.com/                       |
 | Nginx                | 静态资源服务器 `1.19.10`         | https://www.nginx.com/                         |
 | Tomcat               | Web应用服务器 `9.0.45`          | https://tomcat.apache.org/                     |
 | Jenkins              | 自动化部署工具 `2.60.3`          | https://github.com/jenkinsci/jenkins/          |
-| Lombok               | 简化对象封装工具 `1.18.18`       | https://github.com/rzwitserloot/lombok/        |
 | Swagger-UI           | 文档生成工具 `2.9.2`            | https://github.com/swagger-api/swagger-ui/     |
 | OSS                  | 对象存储服务 `3.12.0`           | https://github.com/aliyun/aliyun-oss-java-sdk/ |
 
 
 ## 开发环境与工具
-| 工具           | 说明                         | 官网                                                       |
-| ------------- | ---------------------------- | --------------------------------------------------------- |
-| JDK           | Java开发环境 `1.8`             | https://www.oracle.com/technetwork/java/javase/downloads/ |
-| Maven         | 项目构建、jar包管理 `3.6.3`     | https://maven.apache.org/                                 |
-| IDEA          | 日常开发工作环境 `2021.3`       | https://www.jetbrains.com/idea/download/                  |
-| Xshell+Xftp   | 远程服务器连接管理工具 `6.0`     | https://www.netsarang.com/en/xshell-download/             |
-| Navicat       | 数据库连接管理工具 `15.0`       | https://www.navicat.com/en/download/navicat-premium/      |
-| ProcessOn     | 流程图绘制工具 `web`           | https://www.processon.com/                                |
-| Postman       | API接口调试工具 `latest`       | https://www.postman.com/                                  |
-| Typora        | Markdown编辑器 `latest`       | https://typora.io/                                        |
+| 工具           | 说明                          | 官网                                                       |
+| ------------- | ----------------------------- | --------------------------------------------------------- |
+| JDK           | Java开发环境 `1.8`              | https://www.oracle.com/technetwork/java/javase/downloads/ |
+| Maven         | 项目构建、jar包管理 `3.6.3`      | https://maven.apache.org/                                 |
+| IDEA          | 日常开发工作环境 `2020.3.4`      | https://www.jetbrains.com/idea/download/                  |
+| Xshell+Xftp   | 远程服务器连接管理工具 `7.0 Free` | https://www.netsarang.com/en/xshell-download/             |
+| Navicat       | 数据库连接管理工具 `15.0`        | https://www.navicat.com/en/download/navicat-premium/      |
+| ProcessOn     | 流程图绘制工具 `web`            | https://www.processon.com/                                |
+| Postman       | API接口调试工具 `latest`        | https://www.postman.com/                                  |
+| Typora        | Markdown编辑器 `0.11.18`       | https://typora.io/                                        |
 
 
 ## 部署运行
@@ -167,6 +166,6 @@ mypages -- 项目目录
 
 
 ## 项目参考
-| 项目           | 作者                 | 地址                                         | 说明                            |
-| ------------- | ------------------- | ----------------------------------------------- | ------------------------------ |
-| mall          | macrozheng          | https://github.com/macrozheng/mall/             | 代码结构、文档规范，期待后续更新     |
+| 项目           | 作者                 | 地址                                         | 说明                         |
+| ------------- | ------------------- | -------------------------------------------- | --------------------------- |
+| mall          | macrozheng          | https://github.com/macrozheng/mall/          | 代码结构、文档规范             |

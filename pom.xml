@@ -36,41 +36,30 @@
     <!-- 参数配置 -->
     <properties>
         <project-name-prod>mypages</project-name-prod>
-        <skipTests>true</skipTests><!-- 打包跳过测试 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+        <skipTests>true</skipTests><!-- 打包跳过测试 -->
         <springboot.version>2.3.10.RELEASE</springboot.version>
-        <springcloud.version>Hoxton.SR11</springcloud.version>
-        <springcloud-alibaba.version>2.2.1.RELEASE</springcloud-alibaba.version>
-        <mysql-connector.version>8.0.25</mysql-connector.version><!-- MySQL 连接驱动版本 -->
+        <mysql-connector.version>8.0.29</mysql-connector.version><!-- MySQL 连接驱动版本 -->
         <druid-starter.version>1.2.8</druid-starter.version><!-- druid 连接池 -->
-        <mybatis.version>2.1.4</mybatis.version>
         <mybatis-plus-starter.version>3.4.2</mybatis-plus-starter.version>
         <mpg.version>3.4.1</mpg.version><!-- mybatis-plus 代码生成器 -->
         <velocity-core.version>2.2</velocity-core.version><!-- mybatis-plus 代码生成器需要的模板引擎 -->
         <freemarker.version>2.3.30</freemarker.version><!-- mybatis-plus 代码生成器自定义模板引擎 -->
-        <jedis.version>3.3.0</jedis.version>
-        <fastjson.version>1.2.62</fastjson.version>
         <swagger.version>2.9.2</swagger.version>
         <swagger-ui.version>2.9.2</swagger-ui.version>
         <swagger-models.version>1.5.22</swagger-models.version>
         <swagger-annotations.version>1.5.22</swagger-annotations.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <jsoup.version>1.14.3</jsoup.version>
-        <gson.version>2.9.0</gson.version>
-        <fastjson.version>1.2.79</fastjson.version>
-        <jjwt-version>0.9.1</jjwt-version><!-- jjwt 整合库 -->
-        <jjwt-api-version>0.11.2</jjwt-api-version><!-- jjwt 各部分单独库 -->
-        <jjwt-impl-version>0.11.2</jjwt-impl-version>
-        <jjwt-jackson-version>0.11.2</jjwt-jackson-version>
-        <hutool-version>5.7.20</hutool-version>
+        <jsoup.version>1.15.2</jsoup.version>
+        <jjwt-version>0.9.1</jjwt-version><!-- jjwt 整合库，项目中使用 -->
+        <hutool-version>5.8.4</hutool-version>
         <docker-maven-plugin.version>1.2.2</docker-maven-plugin.version>
         <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
         <tomcat8-maven-plugin.version>3.0-r1756463</tomcat8-maven-plugin.version>
-        <elasticsearch.version>7.17.0</elasticsearch.version>
-        <logstash.version>7.0.1</logstash.version>
-        <aliyun-sdk-oss.version>3.12.0</aliyun-sdk-oss.version>
+        <logstash.version>7.2</logstash.version>
+        <aliyun-sdk-oss.version>3.15.1</aliyun-sdk-oss.version>
         <mypages-common.version>1.0.0</mypages-common.version>
         <mypages-security.version>1.0.0</mypages-security.version>
         <mypages-generator.version>1.0.0</mypages-generator.version>
@@ -79,6 +68,7 @@
 
     </properties>
 
+    <!-- maven中的依赖作用范围概述：https://www.cnblogs.com/satire/p/15068971.html -->
     <!-- 项目或模块自身引用的依赖 -->
     <!-- 父模块的依赖尽可能是子项目共用的 -->
     <dependencies>
@@ -109,7 +99,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
         </dependency>
         <!-- lombok -->
         <dependency>
@@ -184,28 +173,6 @@
                 <artifactId>mypages-god</artifactId>
                 <version>${mypages-god.version}</version>
             </dependency>
-
-            <!-- spring cloud Hoxton -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${springcloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-                <!--
-                <scope>import</scope>
-                解决单继承问题，通过import pom文件达到依赖的目的（典型的非继承模式），从而不用从父类中引用依赖
-                -->
-            </dependency>
-            <!-- spring cloud alibaba -->
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-                <version>${springcloud-alibaba.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <!-- mysql 连接驱动 -->
             <dependency>
                 <groupId>mysql</groupId>
@@ -263,18 +230,6 @@
                 <artifactId>jsoup</artifactId>
                 <version>${jsoup.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>fastjson</artifactId>
-                <version>${fastjson.version}</version>
-            </dependency>
             <!-- tomcat 插件 -->
             <dependency>
                 <groupId>org.apache.tomcat.maven</groupId>
@@ -296,43 +251,11 @@
                 <artifactId>jjwt</artifactId>
                 <version>${jjwt-version}</version>
             </dependency>
-            <!-- 方式二：单独引入各个部分依赖 -->
-            <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-api</artifactId>
-                <version>${jjwt-api-version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl -->
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-impl</artifactId>
-                <version>${jjwt-impl-version}</version>
-                <scope>runtime</scope>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-jackson</artifactId>
-                <version>${jjwt-jackson-version}</version>
-                <scope>runtime</scope>
-            </dependency>
             <!-- hutool 工具类集合 -->
             <dependency>
                 <groupId>cn.hutool</groupId>
-                <artifactId>hutool-all</artifactId>
+                <artifactId>hutool-core</artifactId>
                 <version>${hutool-version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch -->
-            <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>${elasticsearch.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch.client</groupId>
-                <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>${elasticsearch.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
             <dependency>

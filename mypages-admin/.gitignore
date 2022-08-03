@@ -3,6 +3,7 @@
 # Compiled class file
 *.class
 src/test/**/MyTest.java
+src/test/**/daily/
 
 # 生产环境配置文件
 application-prod.yml

@@ -1,7 +1,7 @@
 package cn.m1yellow.mypages.security.service.impl;
 
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
-import cn.m1yellow.mypages.common.util.FastJsonUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
 import cn.m1yellow.mypages.common.util.RedisUtil;
 import cn.m1yellow.mypages.security.entity.SysRole;
@@ -46,7 +46,7 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
         // 先从缓存中获取
         String userRoleListCacheStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.USER_ROLE_RELATION_LIST_CACHE_KEY + userId));
         if (StringUtils.isNotBlank(userRoleListCacheStr)) {
-            List<SysUserRole> userRoleList = FastJsonUtil.json2List(userRoleListCacheStr, SysUserRole.class);
+            List<SysUserRole> userRoleList = JSONUtil.toList(userRoleListCacheStr, SysUserRole.class);
             if (userRoleList != null && userRoleList.size() > 0) {
                 return userRoleList;
             }
@@ -58,7 +58,7 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
 
         // 设置缓存
         if (userRoleList != null && userRoleList.size() > 0) {
-            redisUtil.set(GlobalConstant.USER_ROLE_RELATION_LIST_CACHE_KEY + userId, FastJsonUtil.bean2Json(userRoleList));
+            redisUtil.set(GlobalConstant.USER_ROLE_RELATION_LIST_CACHE_KEY + userId, JSONUtil.toJSON(userRoleList));
         }
 
         return userRoleList;
@@ -73,7 +73,7 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
         // 先从缓存中获取
         String userRoleListCacheStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.USER_ROLE_LIST_CACHE_KEY + userId));
         if (StringUtils.isNotBlank(userRoleListCacheStr)) {
-            List<SysRole> userRoleList = FastJsonUtil.json2List(userRoleListCacheStr, SysRole.class);
+            List<SysRole> userRoleList = JSONUtil.toList(userRoleListCacheStr, SysRole.class);
             if (userRoleList != null && userRoleList.size() > 0) {
                 return userRoleList;
             }
@@ -99,7 +99,7 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
 
         // 设置缓存
         if (roleList != null && roleList.size() > 0) {
-            redisUtil.set(GlobalConstant.USER_ROLE_LIST_CACHE_KEY + userId, FastJsonUtil.bean2Json(roleList));
+            redisUtil.set(GlobalConstant.USER_ROLE_LIST_CACHE_KEY + userId, JSONUtil.toJSON(roleList));
         }
 
         return roleList;

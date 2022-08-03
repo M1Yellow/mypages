@@ -1,11 +1,11 @@
 package cn.m1yellow.mypages.common.service.impl;
 
-import cn.hutool.json.JSONUtil;
 import cn.m1yellow.mypages.common.dto.OssCallbackParam;
 import cn.m1yellow.mypages.common.dto.OssCallbackResult;
 import cn.m1yellow.mypages.common.dto.OssPolicyResult;
 import cn.m1yellow.mypages.common.exception.FileSaveException;
 import cn.m1yellow.mypages.common.service.OssService;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.*;
@@ -28,7 +28,7 @@ import java.util.Map;
  */
 @Slf4j
 @Service
-@ConditionalOnProperty(value = "aliyun.oss.enable", havingValue = "1") // 如果缺少 aliyun.oss.enable 配置项，则不会初始化这个 service 实例
+@ConditionalOnProperty(value = "aliyun.oss.enable", havingValue = "1") // 如果缺少 aliyun.oss.enable 配置项，则不会初始化这个类实例
 public class OssServiceImpl implements OssService {
 
     @Value("${aliyun.oss.policy.expire}")
@@ -45,7 +45,7 @@ public class OssServiceImpl implements OssService {
     private String ALIYUN_OSS_DIR_PREFIX;
 
     @Autowired
-    private OSS ossClient;
+    private OSS ossClient; // TODO 全局共用一个 ossClient 单例，或者配置多例，关闭后都会报错：Connection pool shut down。
 
 
     @Override
@@ -83,7 +83,7 @@ public class OssServiceImpl implements OssService {
             byte[] binaryData = postPolicy.getBytes("utf-8");
             String policy = BinaryUtil.toBase64String(binaryData);
             String signature = ossClient.calculatePostSignature(postPolicy);
-            String callbackData = BinaryUtil.toBase64String(JSONUtil.parse(callback).toString().getBytes("utf-8"));
+            String callbackData = BinaryUtil.toBase64String(JSONUtil.toJSON(callback).getBytes("utf-8"));
             // 返回结果
             //result.setAccessKeyId(ossClient.getCredentialsProvider().getCredentials().getAccessKeyId());
             result.setPolicy(policy);
@@ -92,8 +92,11 @@ public class OssServiceImpl implements OssService {
             result.setCallback(callbackData);
             result.setHost(action);
         } catch (Exception e) {
-            log.error("签名生成失败", e);
+            log.error("签名生成失败：{}", e.getMessage());
+        } finally {
+            //ossClient.shutdown();
         }
+
         return result;
     }
 
@@ -123,8 +126,10 @@ public class OssServiceImpl implements OssService {
             // 根据返回的 ETag 是否为空，判断上传是否成功
             return StringUtils.isNotBlank(result.getETag());
         } catch (Exception e) {
-            log.error(">>>> OSS upload Exception: ", e);
+            log.error(">>>> OSS upload Exception: {}", e.getMessage());
             return false;
+        } finally {
+            //ossClient.shutdown();
         }
     }
 
@@ -138,6 +143,8 @@ public class OssServiceImpl implements OssService {
             ossClient.putObject(bucketName, filePath, is);
         } catch (Exception e) {
             throw new FileSaveException("OSS 文件上传失败", e);
+        } finally {
+            //ossClient.shutdown();
         }
 
         if (isFullPath) {
@@ -185,7 +192,6 @@ public class OssServiceImpl implements OssService {
         // 上传文件。
         PutObjectResult result = ossClient.putObject(putObjectRequest);
 
-        // TODO 全局共用一个 OSSClient，关闭后会报错，Connection pool shut down。
         //ossClient.shutdown();
 
         return result.getResponse().isSuccessful();
@@ -193,14 +199,24 @@ public class OssServiceImpl implements OssService {
 
     @Override
     public boolean delete(String bucketName, String objectName) {
-        // OSS 文件路径名开头没有"/"
-        if (objectName.startsWith("/") && objectName.length() > 1) {
-            objectName = objectName.substring(1);
-        }
-        // 删除文件。如需删除文件夹，请将ObjectName设置为对应的文件夹名称。如果文件夹非空，则需要将文件夹下的所有object删除后才能删除该文件夹。
-        VoidResult result = ossClient.deleteObject(bucketName, objectName);
+        boolean rt = false;
 
-        return result.getResponse().isSuccessful();
+        try {
+            // OSS 文件路径名开头没有"/"
+            if (objectName.startsWith("/") && objectName.length() > 1) {
+                objectName = objectName.substring(1);
+            }
+            // 删除文件。如需删除文件夹，请将ObjectName设置为对应的文件夹名称。如果文件夹非空，则需要将文件夹下的所有object删除后才能删除该文件夹。
+            VoidResult result = ossClient.deleteObject(bucketName, objectName);
+            rt = result.getResponse().isSuccessful();
+        } catch (Exception e) {
+            // 这是一个自定义异常，会根据是否有 FileSaveException 处理业务，不必纠结 delete 方法中为什么会是 FileSaveException
+            throw new FileSaveException("OSS 旧文件删除失败", e);
+        } finally {
+            //ossClient.shutdown();
+        }
+
+        return rt;
     }
 
     @Override

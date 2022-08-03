@@ -1,7 +1,7 @@
 package cn.m1yellow.mypages.security.service.impl;
 
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
-import cn.m1yellow.mypages.common.util.FastJsonUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
 import cn.m1yellow.mypages.common.util.RedisUtil;
 import cn.m1yellow.mypages.security.entity.SysPermission;
@@ -37,7 +37,7 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
         // 先从 redis 缓存中获取
         String permissionListCacheStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.SYS_PERMISSION_LIST_CACHE_KEY));
         if (StringUtils.isNotBlank(permissionListCacheStr)) {
-            List<SysPermission> permissionList = FastJsonUtil.json2List(permissionListCacheStr, SysPermission.class);
+            List<SysPermission> permissionList = JSONUtil.toList(permissionListCacheStr, SysPermission.class);
             if (permissionList != null && permissionList.size() > 0) {
                 return permissionList;
             }
@@ -48,7 +48,7 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
 
         // 设置缓存
         if (permissionList != null && permissionList.size() > 0) {
-            redisUtil.set(GlobalConstant.SYS_PERMISSION_LIST_CACHE_KEY, FastJsonUtil.bean2Json(permissionList));
+            redisUtil.set(GlobalConstant.SYS_PERMISSION_LIST_CACHE_KEY, JSONUtil.toJSON(permissionList));
         }
 
         return permissionList;

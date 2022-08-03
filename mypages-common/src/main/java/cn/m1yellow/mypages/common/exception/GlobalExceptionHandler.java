@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * <br>
  * <b>使用@ExceptionHandler 为什么无法处理404错误/异常？</b>
  * 因为SpringMVC优先处理（Try Catch）掉了资源映射不存在的404类错误/异常，虽然在响应信息注入了404的HttpStatus通信信息，
- * 但木有了异常，肯定不会进入@ExceptionHandler 的处理逻辑。
+ * 没有了异常，肯定不会进入@ExceptionHandler 的处理逻辑。
  * <br>
  * <b>使用@ExceptionHandler + 抛出异常 是否可取？</b>
  * 通过取消资源目录映射来解决无404问题是不可取的，属于越俎代庖的做法。

@@ -5,7 +5,7 @@ import cn.m1yellow.mypages.common.api.CommonResult;
 import cn.m1yellow.mypages.common.aspect.WebLog;
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
 import cn.m1yellow.mypages.common.util.CheckParamUtil;
-import cn.m1yellow.mypages.common.util.FastJsonUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
 import cn.m1yellow.mypages.common.util.RedisUtil;
 import cn.m1yellow.mypages.dto.UserPlatformDto;
@@ -110,7 +110,7 @@ public class UserPlatformController {
         if (isAdd) { // 添加平台，需要的是用户没有添加过的平台列表
             String cacheStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.USER_PLATFORM_LIST_ADD_CACHE_KEY + userId));
             if (StringUtils.isNotBlank(cacheStr)) {
-                List<UserPlatform> userPlatformList = FastJsonUtil.json2List(cacheStr, UserPlatform.class);
+                List<UserPlatform> userPlatformList = JSONUtil.toList(cacheStr, UserPlatform.class);
                 if (userPlatformList != null && userPlatformList.size() > 0) {
                     return CommonResult.success(userPlatformList);
                 }
@@ -118,7 +118,7 @@ public class UserPlatformController {
         } else { // 只是查询基础平台列表，则返回所有可用平台列表
             String cacheStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.PLATFORM_LIST_BASE_CACHE_KEY));
             if (StringUtils.isNotBlank(cacheStr)) {
-                List<UserPlatform> userPlatformList = FastJsonUtil.json2List(cacheStr, UserPlatform.class);
+                List<UserPlatform> userPlatformList = JSONUtil.toList(cacheStr, UserPlatform.class);
                 if (userPlatformList != null && userPlatformList.size() > 0) {
                     return CommonResult.success(userPlatformList);
                 }
@@ -133,7 +133,7 @@ public class UserPlatformController {
             // 先从缓存中获取
             String cacheStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.USER_PLATFORM_LIST_CACHE_KEY + userId));
             if (StringUtils.isNotBlank(cacheStr)) {
-                existedUserPlatformList = FastJsonUtil.json2List(cacheStr, UserPlatformDto.class);
+                existedUserPlatformList = JSONUtil.toList(cacheStr, UserPlatformDto.class);
             }
             if (existedUserPlatformList == null) {
                 // 缓存不存在，则查询数据库
@@ -142,7 +142,7 @@ public class UserPlatformController {
                 existedUserPlatformList = userPlatformService.queryUserPlatformList(params);
                 if (existedUserPlatformList != null && existedUserPlatformList.size() > 0) {
                     // 重新设置缓存
-                    redisUtil.set(GlobalConstant.USER_PLATFORM_LIST_CACHE_KEY + userId, FastJsonUtil.bean2Json(existedUserPlatformList),
+                    redisUtil.set(GlobalConstant.USER_PLATFORM_LIST_CACHE_KEY + userId, JSONUtil.toJSON(existedUserPlatformList),
                             GlobalConstant.USER_PLATFORM_TYPE_LIST_CACHE_TIME);
                 }
             }
@@ -167,7 +167,7 @@ public class UserPlatformController {
             } else {
                 cacheKey = GlobalConstant.PLATFORM_LIST_BASE_CACHE_KEY;
             }
-            redisUtil.set(cacheKey, FastJsonUtil.bean2Json(userPlatformList), GlobalConstant.USER_PLATFORM_TYPE_LIST_CACHE_TIME);
+            redisUtil.set(cacheKey, JSONUtil.toJSON(userPlatformList), GlobalConstant.USER_PLATFORM_TYPE_LIST_CACHE_TIME);
         }
 
         return CommonResult.success(userPlatformList);

@@ -1,7 +1,7 @@
 package cn.m1yellow.mypages.security.component;
 
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
-import cn.m1yellow.mypages.common.util.FastJsonUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
 import cn.m1yellow.mypages.common.util.RedisUtil;
 import cn.m1yellow.mypages.security.config.IgnoreUrlsConfig;
@@ -11,6 +11,7 @@ import cn.m1yellow.mypages.security.entity.SysRolePermission;
 import cn.m1yellow.mypages.security.service.SysPermissionService;
 import cn.m1yellow.mypages.security.service.SysRolePermissionService;
 import cn.m1yellow.mypages.security.service.SysRoleService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -124,7 +125,8 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
         // 先从缓存中获取
         String resourceRolesMapStr = ObjectUtil.getString(redisUtil.get(GlobalConstant.RESOURCE_ROLES_MAP_KEY));
         if (StringUtils.isNotBlank(resourceRolesMapStr)) {
-            resourceRolesMap = FastJsonUtil.json2Bean(resourceRolesMapStr, resourceRolesMap.getClass());
+            resourceRolesMap = JSONUtil.toBean(resourceRolesMapStr, new TypeReference<Map<String, List<String>>>() {
+            });
         }
         if (resourceRolesMap != null && resourceRolesMap.size() > 0) {
             return resourceRolesMap;
@@ -156,7 +158,7 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
 
         if (resourceRolesMap != null && resourceRolesMap.size() > 0) {
             //redisTemplate.opsForHash().putAll(RedisConstant.RESOURCE_ROLES_MAP, resourceRolesMap);
-            redisUtil.set(GlobalConstant.RESOURCE_ROLES_MAP_KEY, FastJsonUtil.bean2Json(resourceRolesMap));
+            redisUtil.set(GlobalConstant.RESOURCE_ROLES_MAP_KEY, JSONUtil.toJSON(resourceRolesMap));
         }
 
         return resourceRolesMap;

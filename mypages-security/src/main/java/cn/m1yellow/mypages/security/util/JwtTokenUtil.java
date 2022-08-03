@@ -1,7 +1,6 @@
 package cn.m1yellow.mypages.security.util;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
 import cn.m1yellow.mypages.security.bo.SecurityUser;
 import cn.m1yellow.mypages.security.config.JwtSecurityProperties;
@@ -150,11 +149,11 @@ public class JwtTokenUtil implements InitializingBean {
      * @param oldToken 带tokenHead的token
      */
     public String refreshHeadToken(String oldToken) {
-        if (StrUtil.isEmpty(oldToken)) {
+        if (StringUtils.isEmpty(oldToken)) {
             return null;
         }
         String token = oldToken.substring(jwtSecurityProperties.getTokenStart().length());
-        if (StrUtil.isEmpty(token)) {
+        if (StringUtils.isEmpty(token)) {
             return null;
         }
         // token 校验不通过

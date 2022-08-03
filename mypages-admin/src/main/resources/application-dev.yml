@@ -2,7 +2,7 @@ server:
   port: 8081
 spring:
   datasource:
-    url: jdbc:mysql://192.168.137.151:3306/mypages-test?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=GMT%2B8
+    url: jdbc:mysql://192.168.31.147:3306/mypages?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=GMT%2B8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456.a
@@ -11,16 +11,16 @@ spring:
     #type: com.zaxxer.hikari.HikariDataSource
     type: com.alibaba.druid.pool.DruidDataSource
     # hikari 连接池配置
-#    hikari:
-#      auto-commit: true # 自动提交从池中返回的连接
-#      minimum-idle: 5 # 最小空闲连接，默认值10，小于0或大于maximum-pool-size，都会重置为maximum-pool-size
-#      maximum-pool-size: 10 # 最大连接数，小于等于0会被重置为默认值10；大于零小于1会被重置为minimum-idle的值
-#      idle-timeout: 50000 # 空闲连接超时时间，默认值600000（10分钟），大于等于max-lifetime且max-lifetime>0，会被重置为0；不等于0且小于10秒，会被重置为10秒
-#      max-lifetime: 60000 # 连接最大存活时间，不等于0且小于30秒，会被重置为默认值30分钟.设置应该比mysql设置的超时时间短
-#      connection-timeout: 60000 # 连接超时时间：毫秒，小于250毫秒，否则被重置为默认值30秒
-#      connection-test-query: select 1 # 用于测试连接是否可用的查询语句
-#      pool-name: HikariPool-admin # 连接池的用户定义名称，主要出现在日志记录和JMX管理控制台中以识别池和池配置
-#      read-only: false # 从池中获取的连接是否默认处于只读模式
+    #    hikari:
+    #      auto-commit: true # 自动提交从池中返回的连接
+    #      minimum-idle: 5 # 最小空闲连接，默认值10，小于0或大于maximum-pool-size，都会重置为maximum-pool-size
+    #      maximum-pool-size: 10 # 最大连接数，小于等于0会被重置为默认值10；大于零小于1会被重置为minimum-idle的值
+    #      idle-timeout: 50000 # 空闲连接超时时间，默认值600000（10分钟），大于等于max-lifetime且max-lifetime>0，会被重置为0；不等于0且小于10秒，会被重置为10秒
+    #      max-lifetime: 60000 # 连接最大存活时间，不等于0且小于30秒，会被重置为默认值30分钟.设置应该比mysql设置的超时时间短
+    #      connection-timeout: 60000 # 连接超时时间：毫秒，小于250毫秒，否则被重置为默认值30秒
+    #      connection-test-query: select 1 # 用于测试连接是否可用的查询语句
+    #      pool-name: HikariPool-admin # 连接池的用户定义名称，主要出现在日志记录和JMX管理控制台中以识别池和池配置
+    #      read-only: false # 从池中获取的连接是否默认处于只读模式
 
     # druid 连接池配置，注意：Spring Boot 2.3 可以自动绑定配置，不用额外写配置类了，写了反而加载不到配置
     druid:
@@ -74,7 +74,7 @@ spring:
 
   redis:
     # 注意，项目和 redis 不在同一台服务器上，需要开放 redis 端口
-    host: 192.168.137.151
+    host: 192.168.31.147
     port: 6379
     username: default
     password: 123456.a
@@ -95,7 +95,7 @@ spring:
     username: admin
     password: 123456.a
     virtual-host: /
-    host: 192.168.137.151
+    host: 192.168.31.147
     port: 5672
 
 
@@ -123,8 +123,6 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     # 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段
     call-setters-on-nulls: true
-    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 
 # logback 日志配置
@@ -136,7 +134,7 @@ mybatis-plus:
 logging:
   config: classpath:config/logback-spring.xml
   log-path: logs
-  log-stash-host: 192.168.137.151:4560
+  log-stash-host: 192.168.31.147:4560
 
 
 # 【项目文件路径问题】

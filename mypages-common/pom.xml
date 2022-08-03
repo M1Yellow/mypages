@@ -51,16 +51,6 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
         -->
-        <!-- gson -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-        <!-- fastjson -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-        </dependency>
         <!-- 接口或方法参数校验 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -69,7 +59,7 @@
         <!-- hutool 工具类集合 -->
         <dependency>
             <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
+            <artifactId>hutool-core</artifactId>
         </dependency>
         <!-- 阿里云 对象存储 OSS SDK -->
         <dependency>

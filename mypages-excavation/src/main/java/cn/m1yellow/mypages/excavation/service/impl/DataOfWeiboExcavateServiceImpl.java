@@ -4,14 +4,16 @@ import cn.m1yellow.mypages.common.service.FileDownloadService;
 import cn.m1yellow.mypages.common.service.OssService;
 import cn.m1yellow.mypages.common.util.HeaderUtil;
 import cn.m1yellow.mypages.common.util.HttpClientUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import cn.m1yellow.mypages.common.util.ObjectUtil;
 import cn.m1yellow.mypages.excavation.bo.UserInfoItem;
 import cn.m1yellow.mypages.excavation.service.DataExcavateService;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +39,7 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
     // TODO 这里报错，实际是能通过编译的
     @Resource(name = "httpClientDownloadService")
     FileDownloadService httpClientDownloadService;
-    @Resource
+    @Autowired(required = false)
     private OssService ossService;
 
 
@@ -92,22 +94,22 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
     public UserInfoItem singleImageDownloadFromJson(String fromUrl, String saveDir, Map<String, Object> params) {
         // TODO 请求失败，自动重试
         String result = HttpClientUtil.getHtml(fromUrl, HeaderUtil.getOneHeaderRandom());
-        JSONObject resultObject = JSON.parseObject(result);
-        JSONObject dataObject = JSON.parseObject(resultObject.getString("data"));
-        JSONObject userInfoObject = JSON.parseObject(dataObject.getString("userInfo"));
+        ObjectNode resultObject = JSONUtil.toJSONObject(result);
+        JsonNode dataObject = resultObject.get("data");
+        JsonNode userInfoObject = dataObject.get("userInfo");
 
         // 指定获取信息的元素位置
         UserInfoItem infoItem = new UserInfoItem();
         // 用户名
-        String userName = userInfoObject.getString("screen_name");
+        String userName = JSONUtil.node2Str(userInfoObject.get("screen_name"));
         infoItem.setUserName(userName);
         // 个性签名
-        String description = userInfoObject.getString("description");
-        String verify = userInfoObject.getString("verified_reason");
+        String description = JSONUtil.node2Str(userInfoObject.get("description"));
+        String verify = JSONUtil.node2Str(userInfoObject.get("verified_reason"));
         String signature = (verify == null ? "" : verify) + (description == null ? "" : (" " + description));
         infoItem.setSignature(signature);
         // 头像地址
-        String imgUrl = userInfoObject.getString("avatar_hd");
+        String imgUrl = JSONUtil.node2Str(userInfoObject.get("avatar_hd"));
         if (imgUrl.indexOf("@") > -1) { // 截取去掉后面的 webp 参数
             imgUrl = imgUrl.substring(0, imgUrl.indexOf("@"));
         }
@@ -139,14 +141,14 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
                 return null;
             }
         } catch (Exception e) {
-            log.info(">>>> OSS 文件保存异常: ", e);
+            log.info(">>>> 文件下载、保存异常：{}", e.getMessage());
             return null;
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    log.error("OSS 文件流关闭异常", e);
+                    log.error("OSS 文件流关闭异常：{}", e.getMessage());
                 }
             }
         }

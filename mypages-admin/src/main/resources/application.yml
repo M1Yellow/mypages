@@ -12,7 +12,9 @@ spring:
     static-path-pattern: /**
   resources:
     static-locations: classpath:/META-INF/resources/,classpath:/META-INF/resources/webjars/,classpath:/resources/,classpath:/static/,classpath:/public/
-
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8 # 不指定会默认系统时区
 
 # 错误页面路径
 server:

@@ -1,7 +1,7 @@
 package cn.m1yellow.mypages.controller;
 
 import cn.m1yellow.mypages.common.api.CommonResult;
-import com.alibaba.fastjson.JSON;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +39,7 @@ public class TestController {
         String realPath = request.getSession().getServletContext().getRealPath(saveDir);
         pathResult.put("realPath", realPath);
 
-        String result = JSON.toJSONString(pathResult);
-        System.out.println(result);
+        String result = JSONUtil.toJSON(pathResult);
 
         return CommonResult.success(result);
     }

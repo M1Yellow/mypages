@@ -1,8 +1,8 @@
 package cn.m1yellow.mypages.security.component;
 
-import cn.hutool.json.JSONUtil;
 import cn.m1yellow.mypages.common.api.CommonResult;
 import cn.m1yellow.mypages.common.constant.Headers;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setHeader(Headers.CACHE_CONTROL_NOT_ALLOW_CACHED.getHeadName(), Headers.CACHE_CONTROL_NOT_ALLOW_CACHED.getHeadValues());
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
-        response.getWriter().println(JSONUtil.parse(CommonResult.forbidden(e.getMessage())));
+        response.getWriter().println(JSONUtil.toJSON(CommonResult.forbidden(e.getMessage())));
         response.getWriter().flush();
     }
 }

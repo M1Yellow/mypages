@@ -1,7 +1,7 @@
 package cn.m1yellow.mypages.common.aspect;
 
-import cn.m1yellow.mypages.common.util.GsonUtil;
 import cn.m1yellow.mypages.common.util.HeaderUtil;
+import cn.m1yellow.mypages.common.util.JSONUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +55,7 @@ public class WebLogAspect {
         long startTime = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
         // 打印出参
-        log.info("Response Args  : {}", GsonUtil.bean2Json(result));
+        log.info("Response Args  : {}", JSONUtil.toJSON(result));
         // 执行耗时
         log.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
 
@@ -94,7 +94,7 @@ public class WebLogAspect {
         // 打印请求的 IP
         log.info("IP             : {}", HeaderUtil.getRequestIp(request));
         // 打印请求入参
-        log.info("Request Args   : {}", GsonUtil.bean2Json(joinPoint.getArgs()));
+        log.info("Request Args   : {}", JSONUtil.toJSON(joinPoint.getArgs()));
     }
 
 

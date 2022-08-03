@@ -23,7 +23,7 @@ public class SwaggerConfig {
     // http://localhost:8081/swagger-ui.html
 
     public static final String SWAGGER_SCAN_BASE_PACKAGE = "cn.m1yellow.mypages.controller";
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "1.0.0";
 
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()

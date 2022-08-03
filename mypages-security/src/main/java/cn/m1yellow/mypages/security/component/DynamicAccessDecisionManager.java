@@ -1,6 +1,5 @@
 package cn.m1yellow.mypages.security.component;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.m1yellow.mypages.common.api.ResultCode;
 import cn.m1yellow.mypages.common.constant.GlobalConstant;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +33,7 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
 
         // TODO 注意，当 authentication 为 null，或 configAttributes 为 null 或 size 小于 1 的时候，decide 方法不执行，即不进入这个方法
         // 当接口未被配置路径权限时直接放行
-        if (CollUtil.isEmpty(configAttributes)) { // configAttributes 是 DynamicSecurityMetadataSource getAttributes 传过来的角色标识列表
+        if (null == configAttributes || configAttributes.size() < 1) { // configAttributes 是 DynamicSecurityMetadataSource getAttributes 传过来的角色标识列表
             return;
         }
         Iterator<ConfigAttribute> iterator = configAttributes.iterator();
