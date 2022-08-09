@@ -29,6 +29,11 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+        <!-- HttpClinet 涉及文件上传需要的包 -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+        </dependency>
         <!-- jsoup 解析 html 页面 -->
         <dependency>
             <groupId>org.jsoup</groupId>

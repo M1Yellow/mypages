@@ -38,13 +38,13 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
 
     // TODO 这里报错，实际是能通过编译的
     @Resource(name = "httpClientDownloadService")
-    FileDownloadService httpClientDownloadService;
+    private FileDownloadService httpClientDownloadService;
     @Autowired(required = false)
     private OssService ossService;
 
 
     /**
-     * 一部加载渲染内容数据，不方便获取（暂未使用）
+     * 异步加载渲染内容数据，不方便获取（暂未使用）
      *
      * @param fromUrl
      * @param saveDir
@@ -54,7 +54,7 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
     @Override
     public UserInfoItem singleImageDownloadFromHtml(String fromUrl, String saveDir, Map<String, Object> params) {
         // 获取 html 对象
-        String html = HttpClientUtil.getHtml(fromUrl, HeaderUtil.getOneHeaderRandom());
+        String html = HttpClientUtil.doGet(fromUrl);
         Document doc = Jsoup.parse(html, "UTF-8");
 
         // 指定获取信息的元素位置
@@ -92,8 +92,7 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
 
     @Override
     public UserInfoItem singleImageDownloadFromJson(String fromUrl, String saveDir, Map<String, Object> params) {
-        // TODO 请求失败，自动重试
-        String result = HttpClientUtil.getHtml(fromUrl, HeaderUtil.getOneHeaderRandom());
+        String result = HttpClientUtil.doGet(fromUrl);
         ObjectNode resultObject = JSONUtil.toJSONObject(result);
         JsonNode dataObject = resultObject.get("data");
         JsonNode userInfoObject = dataObject.get("userInfo");

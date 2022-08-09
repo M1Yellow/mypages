@@ -38,7 +38,7 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
 
     // TODO 这里报错，实际是能通过编译的
     @Resource(name = "httpClientDownloadService")
-    FileDownloadService httpClientDownloadService;
+    private FileDownloadService httpClientDownloadService;
     @Autowired(required = false)
     private OssService ossService;
 
@@ -54,7 +54,7 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
     @Override
     public UserInfoItem singleImageDownloadFromHtml(String fromUrl, String saveDir, Map<String, Object> params) {
         // 获取 html 对象
-        String html = HttpClientUtil.getHtml(fromUrl, HeaderUtil.getOneHeaderRandom());
+        String html = HttpClientUtil.doGet(fromUrl);
         Document doc = Jsoup.parse(html, "UTF-8");
 
         // 指定获取信息的元素位置
@@ -91,8 +91,7 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
 
     @Override
     public UserInfoItem singleImageDownloadFromJson(String fromUrl, String saveDir, Map<String, Object> params) {
-
-        String result = HttpClientUtil.getHtml(fromUrl, HeaderUtil.getOneHeaderRandom());
+        String result = HttpClientUtil.doGet(fromUrl);
         ObjectNode resultObject = JSONUtil.toJSONObject(result);
         JsonNode dataObject = resultObject.get("data");
 
@@ -127,7 +126,7 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
         //String filePath = "/" + ALIYUN_OSS_DIR_AVATAR + headImgName;
         String filePath = ossService.getPathV2(ALIYUN_OSS_DIR_AVATAR, headImgName);
 
-        // 上传到OSS
+        // 上传到 OSS
         InputStream is = null;
         try {
             is = new URL(imgUrl).openStream();
@@ -150,7 +149,7 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
         }
 
         /*
-        // 保存到服务器本机
+        // TODO 保存到服务器，在没有购买 OSS 存储服务的情况
         if (StringUtils.isNotBlank(profileOriginalDir)) {
             // 原来的文件名
             String headImgOriginalName = profileOriginalDir.substring(profileOriginalDir.lastIndexOf("/") + 1);
@@ -178,15 +177,12 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
                     if (StringUtils.isNotBlank(originalFileMd5)) {
                         params.put("originalFileMd5", originalFileMd5);
                     }
-                } catch (FileNotFoundException e) {
-                    log.error(e.getMessage());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     log.error(e.getMessage());
                 }
             }
         }
-
-        // 下载
+        // 文件下载到本地服务器
         httpClientDownloadService.singleFileDownload(imgUrl, headImgName, saveDir, params);
         */
 
@@ -194,4 +190,6 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
 
         return infoItem;
     }
+
+
 }

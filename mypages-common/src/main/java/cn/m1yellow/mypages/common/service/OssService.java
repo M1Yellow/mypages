@@ -3,6 +3,7 @@ package cn.m1yellow.mypages.common.service;
 import cn.hutool.core.date.DateUtil;
 import cn.m1yellow.mypages.common.dto.OssCallbackResult;
 import cn.m1yellow.mypages.common.dto.OssPolicyResult;
+import com.aliyun.oss.OSS;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,6 +68,11 @@ public interface OssService {
 
         return path;
     }
+
+    /**
+     * 获取 ossClient
+     */
+    OSS getOssClient();
 
     /**
      * 获取 OSS 图片服务器地址

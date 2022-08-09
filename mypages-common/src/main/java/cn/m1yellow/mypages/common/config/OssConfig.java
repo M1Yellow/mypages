@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 @Configuration
 @ConditionalOnProperty(value = "aliyun.oss.enable", havingValue = "1") // 如果缺少 aliyun.oss.enable 配置项，则不会初始化这个类实例
@@ -72,13 +73,18 @@ public class OssConfig {
 
 
     /**
-     * 工程中可以有一个或多个OSSClient。OSSClient可以并发使用。
-     *
-     * @return
+     * 创建 ossClient
+     * TODO
+     * 注意：单例模式，调用 ossClient.shutdown() 之后，OSSClient 报错：com.aliyun.oss.ClientException: Connection error due to: Connection pool shut down
+     * 需要配置多例模式，或者需要使用 ossClient 的时候，每次创建一个新的对象。
+     * OSSClient 目前的实现，只能用于局部服用，就是一个方法内使用多次，全局 OSSClient 连接池式复用，貌似没找到可行案例，官方文档目前也是局部复用案例
      */
     @Bean
+    @Scope("prototype") // 多例
     public OSS ossClient() {
+        // 使用自定义连接配置
         //return new OSSClient(ALIYUN_OSS_ENDPOINT, defaultCredentialProvider(), clientBuilderConfiguration());
+        // 使用默认连接配置
         return new OSSClientBuilder().build(ALIYUN_OSS_ENDPOINT, ALIYUN_OSS_ACCESSKEYID, ALIYUN_OSS_ACCESSKEYSECRET);
     }
 

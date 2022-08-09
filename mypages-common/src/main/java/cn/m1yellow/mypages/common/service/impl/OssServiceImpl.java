@@ -1,5 +1,6 @@
 package cn.m1yellow.mypages.common.service.impl;
 
+import cn.m1yellow.mypages.common.config.OssConfig;
 import cn.m1yellow.mypages.common.dto.OssCallbackParam;
 import cn.m1yellow.mypages.common.dto.OssCallbackResult;
 import cn.m1yellow.mypages.common.dto.OssPolicyResult;
@@ -45,8 +46,13 @@ public class OssServiceImpl implements OssService {
     private String ALIYUN_OSS_DIR_PREFIX;
 
     @Autowired
-    private OSS ossClient; // TODO 全局共用一个 ossClient 单例，或者配置多例，关闭后都会报错：Connection pool shut down。
+    private OssConfig ossConfig;
 
+
+    @Override
+    public OSS getOssClient() {
+        return ossConfig.ossClient();
+    }
 
     @Override
     public String getOssHost() {
@@ -75,7 +81,10 @@ public class OssServiceImpl implements OssService {
         callback.setCallbackBodyType("application/x-www-form-urlencoded");
         // 提交节点
         String action = "http://" + ALIYUN_OSS_BUCKET_NAME + "." + ALIYUN_OSS_ENDPOINT;
+        // 创建 ossClient
+        OSS ossClient = null;
         try {
+            ossClient = getOssClient();
             PolicyConditions policyConds = new PolicyConditions();
             policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, maxSize);
             policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, dir);
@@ -94,7 +103,9 @@ public class OssServiceImpl implements OssService {
         } catch (Exception e) {
             log.error("签名生成失败：{}", e.getMessage());
         } finally {
-            //ossClient.shutdown();
+            if (null != ossClient) {
+                ossClient.shutdown();
+            }
         }
 
         return result;
@@ -115,7 +126,10 @@ public class OssServiceImpl implements OssService {
 
     @Override
     public boolean upload(String bucketName, String filePath, InputStream is) {
+        // 创建 ossClient
+        OSS ossClient = null;
         try {
+            ossClient = getOssClient();
             // OSS 文件路径名开头没有"/"
             if (filePath.startsWith("/") && filePath.length() > 1) {
                 filePath = filePath.substring(1);
@@ -129,13 +143,18 @@ public class OssServiceImpl implements OssService {
             log.error(">>>> OSS upload Exception: {}", e.getMessage());
             return false;
         } finally {
-            //ossClient.shutdown();
+            if (null != ossClient) {
+                ossClient.shutdown();
+            }
         }
     }
 
     @Override
     public String upload(String bucketName, InputStream is, String filePath, boolean isFullPath) {
+        // 创建 ossClient
+        OSS ossClient = null;
         try {
+            ossClient = getOssClient();
             // OSS 文件路径名开头没有"/"
             if (filePath.startsWith("/") && filePath.length() > 1) {
                 filePath = filePath.substring(1);
@@ -144,7 +163,9 @@ public class OssServiceImpl implements OssService {
         } catch (Exception e) {
             throw new FileSaveException("OSS 文件上传失败", e);
         } finally {
-            //ossClient.shutdown();
+            if (null != ossClient) {
+                ossClient.shutdown();
+            }
         }
 
         if (isFullPath) {
@@ -158,62 +179,78 @@ public class OssServiceImpl implements OssService {
 
     @Override
     public boolean upload(String bucketName, String filePath, File file) {
-        // OSS 文件路径名开头没有"/"
-        if (filePath.startsWith("/") && filePath.length() > 1) {
-            filePath = filePath.substring(1);
+        PutObjectResult result = null;
+        // 创建 ossClient
+        OSS ossClient = null;
+        try {
+            ossClient = getOssClient();
+            // OSS 文件路径名开头没有"/"
+            if (filePath.startsWith("/") && filePath.length() > 1) {
+                filePath = filePath.substring(1);
+            }
+
+            // 创建PutObjectRequest对象。
+            // 填写Bucket名称、Object完整路径和本地文件的完整路径。Object完整路径中不能包含Bucket名称。
+            // 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, filePath, file);
+
+            // 如果需要上传时设置存储类型和访问权限，请参考以下示例代码。
+            // ObjectMetadata metadata = new ObjectMetadata();
+            // metadata.setHeader(OSSHeaders.OSS_STORAGE_CLASS, StorageClass.Standard.toString());
+            // metadata.setObjectAcl(CannedAccessControlList.Private);
+            // putObjectRequest.setMetadata(metadata);
+
+            /*
+            // 上传回调参数。注意，私有 bucket 不支持
+            Callback callback = new Callback();
+            callback.setCallbackUrl(ALIYUN_OSS_CALLBACK);
+            //（可选）设置回调请求消息头中Host的值，即您的服务器配置Host的值。
+            // callback.setCallbackHost("yourCallbackHost");
+            // 设置发起回调时请求body的值。
+            callback.setCallbackBody("{\\\"filename\\\":${object},\\\"mimeType\\\":${mimeType},\\\"size\\\":${size},\\\"height\\\":${imageInfo.height}\\\"width\\\":${imageInfo.width}}");
+            // 设置发起回调请求的Content-Type。
+            callback.setCalbackBodyType(Callback.CalbackBodyType.JSON);
+            // 设置发起回调请求的自定义参数，由Key和Value组成，Key必须以x:开始。
+            //callback.addCallbackVar("x:var1", "value1");
+            putObjectRequest.setCallback(callback);
+            */
+
+            // 上传文件
+            result = ossClient.putObject(putObjectRequest);
+
+        } catch (Exception e) {
+            log.error(">>>> OSS upload Exception: {}", e.getMessage());
+        } finally {
+            if (null != ossClient) {
+                ossClient.shutdown();
+            }
         }
 
-        // 创建PutObjectRequest对象。
-        // 填写Bucket名称、Object完整路径和本地文件的完整路径。Object完整路径中不能包含Bucket名称。
-        // 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, filePath, file);
-
-        // 如果需要上传时设置存储类型和访问权限，请参考以下示例代码。
-        // ObjectMetadata metadata = new ObjectMetadata();
-        // metadata.setHeader(OSSHeaders.OSS_STORAGE_CLASS, StorageClass.Standard.toString());
-        // metadata.setObjectAcl(CannedAccessControlList.Private);
-        // putObjectRequest.setMetadata(metadata);
-
-        /*
-        // 上传回调参数。注意，私有 bucket 不支持
-        Callback callback = new Callback();
-        callback.setCallbackUrl(ALIYUN_OSS_CALLBACK);
-        //（可选）设置回调请求消息头中Host的值，即您的服务器配置Host的值。
-        // callback.setCallbackHost("yourCallbackHost");
-        // 设置发起回调时请求body的值。
-        callback.setCallbackBody("{\\\"filename\\\":${object},\\\"mimeType\\\":${mimeType},\\\"size\\\":${size},\\\"height\\\":${imageInfo.height}\\\"width\\\":${imageInfo.width}}");
-        // 设置发起回调请求的Content-Type。
-        callback.setCalbackBodyType(Callback.CalbackBodyType.JSON);
-        // 设置发起回调请求的自定义参数，由Key和Value组成，Key必须以x:开始。
-        //callback.addCallbackVar("x:var1", "value1");
-        putObjectRequest.setCallback(callback);
-        */
-
-        // 上传文件。
-        PutObjectResult result = ossClient.putObject(putObjectRequest);
-
-        //ossClient.shutdown();
-
-        return result.getResponse().isSuccessful();
+        return null != result && result.getResponse().isSuccessful();
     }
 
     @Override
     public boolean delete(String bucketName, String objectName) {
         boolean rt = false;
-
+        // 创建 ossClient
+        OSS ossClient = null;
         try {
+            ossClient = getOssClient();
             // OSS 文件路径名开头没有"/"
             if (objectName.startsWith("/") && objectName.length() > 1) {
                 objectName = objectName.substring(1);
             }
             // 删除文件。如需删除文件夹，请将ObjectName设置为对应的文件夹名称。如果文件夹非空，则需要将文件夹下的所有object删除后才能删除该文件夹。
+            // 注意，OSS 文件不存在，返回的也是成功的 VoidResult
             VoidResult result = ossClient.deleteObject(bucketName, objectName);
             rt = result.getResponse().isSuccessful();
         } catch (Exception e) {
             // 这是一个自定义异常，会根据是否有 FileSaveException 处理业务，不必纠结 delete 方法中为什么会是 FileSaveException
             throw new FileSaveException("OSS 旧文件删除失败", e);
         } finally {
-            //ossClient.shutdown();
+            if (null != ossClient) {
+                ossClient.shutdown();
+            }
         }
 
         return rt;
@@ -240,7 +277,7 @@ public class OssServiceImpl implements OssService {
             log.info(">>>> OSS saveFile oldFilePath: {}", oldFilePath);
             boolean delResult = this.delete(bucketName, oldFilePath);
             if (delResult) { // 旧文件本来就不存在时，OSS 删除返回的结果也是 true，不影响
-                log.info(">>>> OSS saveFile 旧文件已删除：{}", oldFilePath);
+                log.debug(">>>> OSS saveFile 旧文件已删除：{}", oldFilePath);
             } else {
                 log.error(">>>> OSS saveFile 旧文件删除失败：{}", oldFilePath);
                 return false;

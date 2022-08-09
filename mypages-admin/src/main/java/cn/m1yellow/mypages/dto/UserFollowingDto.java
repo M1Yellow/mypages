@@ -30,7 +30,7 @@ public class UserFollowingDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "这里的值为用户与关注用户关系表id")
+    @ApiModelProperty(value = "这里的值为用户与关注用户关系表（user_following_relation）id")
     private Long id;
 
     @NotNull(message = "用户id不能为空")
@@ -38,7 +38,7 @@ public class UserFollowingDto implements Serializable {
     @ApiModelProperty(value = "用户与关注用户关系表查询的用户id")
     private Long userId;
 
-    @ApiModelProperty(value = "对应关注用户表的id")
+    @ApiModelProperty(value = "对应关注用户表（user_following）的id")
     private Long followingId;
 
     @NotNull(message = "平台id不能为空")

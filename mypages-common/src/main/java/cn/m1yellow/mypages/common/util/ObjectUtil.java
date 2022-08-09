@@ -1,7 +1,10 @@
 package cn.m1yellow.mypages.common.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Field;
 
+@Slf4j
 public class ObjectUtil {
 
     /**
@@ -38,7 +41,7 @@ public class ObjectUtil {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(">>>> stringFiledTrim error: {}", e.getMessage());
         }
     }
 

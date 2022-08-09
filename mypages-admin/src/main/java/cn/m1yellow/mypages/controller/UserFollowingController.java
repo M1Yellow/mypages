@@ -86,6 +86,8 @@ public class UserFollowingController {
     https://juejin.cn/post/6844904096747503629
     https://blog.csdn.net/weixin_41816847/article/details/105995453
 
+    不加 @Transactional
+    如果不配置 @Transactional ，则每执行一个 SQL 操作，如果成功，默认开启的事务就会立即向数据库自动 commit，而不能rollback
     */
 
 
@@ -324,7 +326,6 @@ public class UserFollowingController {
         if (!following.getIsUser()) { // 非用户
             if (profile != null) {
                 // saveFile 文件保存出错会抛出自定义文件保存异常，整个方法的事务回滚
-                //saveFile(profile, oldFilePath, following.getProfilePhoto());
                 // 保存到 OSS
                 saveFileToOSS(profile, oldFilePath, following.getProfilePhoto());
             }
@@ -342,30 +343,21 @@ public class UserFollowingController {
      * @param newFilePath
      */
     private void saveFileToOSS(MultipartFile profile, String oldFilePath, String newFilePath) {
-        InputStream is = null;
-        try {
-            is = profile.getInputStream();
-            boolean result = ossService.saveFile(ALIYUN_OSS_BUCKET_NAME, is, oldFilePath, newFilePath);
-            if (!result) {
-                // 抛出自定义文件保存异常，回滚前面的数据操作
-                throw new FileSaveException("保存用户头像失败");
-            }
+        boolean result = false;
+        try (InputStream is = profile.getInputStream()) {
+            result = ossService.saveFile(ALIYUN_OSS_BUCKET_NAME, is, oldFilePath, newFilePath);
         } catch (Exception e) {
-            log.error("OSS 保存文件异常:{}", e.getMessage());
-            // TODO 出现异常，删除上传文件，不管是否已经上传成功
-            ossService.delete(ALIYUN_OSS_BUCKET_NAME, newFilePath);
+            result = false;
+            log.error("OSS 保存文件异常：{}", e.getMessage());
+        }
+        if (!result) {
+            // TODO 出现异常，删除上传文件，不管是否已经上传成功。
+            boolean delResult = ossService.delete(ALIYUN_OSS_BUCKET_NAME, newFilePath);
+            if (!delResult) {
+                log.error("OSS 删除文件失败：{}", newFilePath);
+            }
             // 抛出自定义文件保存异常，回滚前面的数据操作
             throw new FileSaveException("保存用户头像失败");
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    log.error("OSS 文件流关闭异常", e.getMessage());
-                    // 抛出自定义文件保存异常，回滚前面的数据操作
-                    //throw new FileSaveException("保存用户头像失败");
-                }
-            }
         }
     }
 
@@ -532,7 +524,7 @@ public class UserFollowingController {
             @CacheEvict(value = GlobalConstant.CACHE_USER_FOLLOWING_2HOURS, key = "T(cn.m1yellow.mypages.common.constant.GlobalConstant).HOME_PLATFORM_LIST_CACHE_KEY + #userId"),
             @CacheEvict(value = GlobalConstant.CACHE_USER_FOLLOWING_2HOURS, key = "T(cn.m1yellow.mypages.common.constant.GlobalConstant).USER_FOLLOWING_PAGE_LIST_CACHE_KEY + #userId + '_' + #platformId + '_' + #typeId")
     })
-    public CommonResult<List<UserFollowingItem>> syncFollowingInfoBatch(@RequestParam Long userId, @RequestParam Long platformId, @RequestParam(required = false) Long typeId) {
+    public CommonResult<String> syncFollowingInfoBatch(@RequestParam Long userId, @RequestParam Long platformId, @RequestParam(required = false) Long typeId) {
 
         if (userId == null || platformId == null) {
             log.error("请求参数错误");
@@ -570,36 +562,17 @@ public class UserFollowingController {
             // 保存入库
             userFollowingService.saveUserInfo(userInfoItem, saveFollowing);
 
-            // 重新加载用户信息
-            params.clear(); // 每次循环都 clear，不太友好，但不容易出错，各种判断，反而容易出问题
-            params.put("userId", userId);
-            params.put("platformId", platformId);
-            if (typeId != null) params.put("typeId", typeId);
-            params.put("followingId", following.getFollowingId()); // following id 每次循环都是新的
-            UserFollowingDto newFollowing = userFollowingService.getUserFollowing(params);
-            if (newFollowing == null) {
-                log.error("重新加载用户信息失败，following id:" + following.getFollowingId());
-                return CommonResult.failed("加载用户信息失败");
-            }
-
-            // 封装页面显示对象
-            UserFollowingItem userFollowingItem = new UserFollowingItem();
-            userFollowingItem.setUserFollowing(newFollowing);
-            //userFollowingItem.setUserFollowingRemarkList(null); // 标签没改动，不操作
-
-            userFollowingItemList.add(userFollowingItem);
-
             // 避免频繁访问被封
             /*
             try {
-                Thread.sleep(1500);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             */
         }
 
-        return CommonResult.success(userFollowingItemList);
+        return CommonResult.success("正在同步信息，请稍后刷新页面查看");
     }
 
 
