@@ -1,17 +1,18 @@
 package cn.m1yellow.mypages.common.service.impl;
 
-import cn.m1yellow.mypages.common.config.OssConfig;
 import cn.m1yellow.mypages.common.dto.OssCallbackParam;
 import cn.m1yellow.mypages.common.dto.OssCallbackResult;
 import cn.m1yellow.mypages.common.dto.OssPolicyResult;
 import cn.m1yellow.mypages.common.exception.FileSaveException;
 import cn.m1yellow.mypages.common.service.OssService;
 import cn.m1yellow.mypages.common.util.JSONUtil;
+import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,6 +24,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Oss对象存储管理Service实现类
@@ -46,13 +48,12 @@ public class OssServiceImpl implements OssService {
     private String ALIYUN_OSS_DIR_PREFIX;
 
     @Autowired
-    private OssConfig ossConfig;
+    private OSS ossClient;
+    @Autowired
+    private PoolingHttpClientConnectionManager defaultConnManager;
+    @Autowired
+    private ClientBuilderConfiguration clientBuilderConfiguration;
 
-
-    @Override
-    public OSS getOssClient() {
-        return ossConfig.ossClient();
-    }
 
     @Override
     public String getOssHost() {
@@ -81,10 +82,7 @@ public class OssServiceImpl implements OssService {
         callback.setCallbackBodyType("application/x-www-form-urlencoded");
         // 提交节点
         String action = "http://" + ALIYUN_OSS_BUCKET_NAME + "." + ALIYUN_OSS_ENDPOINT;
-        // 创建 ossClient
-        OSS ossClient = null;
         try {
-            ossClient = getOssClient();
             PolicyConditions policyConds = new PolicyConditions();
             policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, maxSize);
             policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, dir);
@@ -103,9 +101,14 @@ public class OssServiceImpl implements OssService {
         } catch (Exception e) {
             log.error("签名生成失败：{}", e.getMessage());
         } finally {
+            // TODO 项目全局共用一个 ossClient，不用关闭，关闭会报错
+            /*
             if (null != ossClient) {
                 ossClient.shutdown();
             }
+            */
+            // 执行手动清理闲置连接方法
+            idleConnHandler("policy");
         }
 
         return result;
@@ -126,10 +129,7 @@ public class OssServiceImpl implements OssService {
 
     @Override
     public boolean upload(String bucketName, String filePath, InputStream is) {
-        // 创建 ossClient
-        OSS ossClient = null;
         try {
-            ossClient = getOssClient();
             // OSS 文件路径名开头没有"/"
             if (filePath.startsWith("/") && filePath.length() > 1) {
                 filePath = filePath.substring(1);
@@ -143,18 +143,19 @@ public class OssServiceImpl implements OssService {
             log.error(">>>> OSS upload Exception: {}", e.getMessage());
             return false;
         } finally {
+            /*
             if (null != ossClient) {
                 ossClient.shutdown();
             }
+            */
+            // 执行手动清理闲置连接方法
+            idleConnHandler("upload");
         }
     }
 
     @Override
     public String upload(String bucketName, InputStream is, String filePath, boolean isFullPath) {
-        // 创建 ossClient
-        OSS ossClient = null;
         try {
-            ossClient = getOssClient();
             // OSS 文件路径名开头没有"/"
             if (filePath.startsWith("/") && filePath.length() > 1) {
                 filePath = filePath.substring(1);
@@ -163,9 +164,13 @@ public class OssServiceImpl implements OssService {
         } catch (Exception e) {
             throw new FileSaveException("OSS 文件上传失败", e);
         } finally {
+            /*
             if (null != ossClient) {
                 ossClient.shutdown();
             }
+            */
+            // 执行手动清理闲置连接方法
+            idleConnHandler("upload");
         }
 
         if (isFullPath) {
@@ -180,10 +185,7 @@ public class OssServiceImpl implements OssService {
     @Override
     public boolean upload(String bucketName, String filePath, File file) {
         PutObjectResult result = null;
-        // 创建 ossClient
-        OSS ossClient = null;
         try {
-            ossClient = getOssClient();
             // OSS 文件路径名开头没有"/"
             if (filePath.startsWith("/") && filePath.length() > 1) {
                 filePath = filePath.substring(1);
@@ -221,9 +223,13 @@ public class OssServiceImpl implements OssService {
         } catch (Exception e) {
             log.error(">>>> OSS upload Exception: {}", e.getMessage());
         } finally {
+            /*
             if (null != ossClient) {
                 ossClient.shutdown();
             }
+            */
+            // 执行手动清理闲置连接方法
+            idleConnHandler("upload");
         }
 
         return null != result && result.getResponse().isSuccessful();
@@ -232,10 +238,7 @@ public class OssServiceImpl implements OssService {
     @Override
     public boolean delete(String bucketName, String objectName) {
         boolean rt = false;
-        // 创建 ossClient
-        OSS ossClient = null;
         try {
-            ossClient = getOssClient();
             // OSS 文件路径名开头没有"/"
             if (objectName.startsWith("/") && objectName.length() > 1) {
                 objectName = objectName.substring(1);
@@ -248,9 +251,13 @@ public class OssServiceImpl implements OssService {
             // 这是一个自定义异常，会根据是否有 FileSaveException 处理业务，不必纠结 delete 方法中为什么会是 FileSaveException
             throw new FileSaveException("OSS 旧文件删除失败", e);
         } finally {
+            /*
             if (null != ossClient) {
                 ossClient.shutdown();
             }
+            */
+            // 执行手动清理闲置连接方法
+            idleConnHandler("upload");
         }
 
         return rt;
@@ -337,6 +344,20 @@ public class OssServiceImpl implements OssService {
         }
 
         return true;
+    }
+
+    @Override
+    public void idleConnHandler(String method) {
+        if (defaultConnManager.getTotalStats().getMax() >= 0) {
+            // 用于测试关闭 connection manager
+            //return;
+        }
+        log.debug(">>>> {} 方法开始执行手动清理闲置连接...", method);
+        // 关闭失效的连接，方法内有 debug 日志，不用再打印
+        defaultConnManager.closeExpiredConnections();
+        // 可选的，关闭指定时间内空闲（不活动的）连接
+        defaultConnManager.closeIdleConnections(clientBuilderConfiguration.getIdleConnectionTime(), TimeUnit.MILLISECONDS);
+        log.debug(">>>> {} 方法执行手动清理闲置连接结束", method);
     }
 
 }

@@ -69,11 +69,11 @@ public class HttpClientUtil {
     /**
      * 连接池最大连接数量，默认20，根据测试、生产环境的业务量，适当扩大
      */
-    public static final int DEFAULT_POOL_MAX_TOTAL = 100;
+    public static final int DEFAULT_POOL_MAX_TOTAL = 1000;
     /**
      * 每个路由（ip+port）最大连接数量，默认2，根据测试、生产环境的业务量，适当扩大
      */
-    public static final int DEFAULT_POOL_MAX_PER_ROUTE = 10;
+    public static final int DEFAULT_POOL_MAX_PER_ROUTE = 100;
     /**
      * tcp connect的超时时间，单位：毫秒
      */
@@ -86,6 +86,10 @@ public class HttpClientUtil {
      * 从连接池获取连接的超时时间，就是连接池只有10个连接，来了12个请求，多的两个要等待的时间，单位：毫秒
      */
     public static final int DEFAULT_CONNECT_REQUEST_TIMEOUT = 10000;
+    /**
+     * 重试次数，默认3
+     */
+    public static final int DEFAULT_MAX_RETRIES = -1;
     /**
      * 清理闲置连接时间间隔，单位：毫秒
      * 业务量大的，可以减小清理周期
@@ -138,6 +142,7 @@ public class HttpClientUtil {
                 .setConnectTimeout(DEFAULT_CONNECT_TIMEOUT)                     // 设置连接超时
                 .setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)                       // 设置读取超时
                 .setConnectionRequestTimeout(DEFAULT_CONNECT_REQUEST_TIMEOUT)   // 设置从连接池获取连接实例的超时
+                .setMaxRedirects(DEFAULT_MAX_RETRIES)                           // 设置默认重试次数
                 .build();
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
 

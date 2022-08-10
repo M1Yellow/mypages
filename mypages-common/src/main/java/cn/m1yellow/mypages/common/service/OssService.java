@@ -3,7 +3,6 @@ package cn.m1yellow.mypages.common.service;
 import cn.hutool.core.date.DateUtil;
 import cn.m1yellow.mypages.common.dto.OssCallbackResult;
 import cn.m1yellow.mypages.common.dto.OssPolicyResult;
-import com.aliyun.oss.OSS;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,11 +67,6 @@ public interface OssService {
 
         return path;
     }
-
-    /**
-     * 获取 ossClient
-     */
-    OSS getOssClient();
 
     /**
      * 获取 OSS 图片服务器地址
@@ -148,5 +142,11 @@ public interface OssService {
      * @return 操作结果
      */
     boolean dealExistedFile(String oldFilePath, String newFileName, Map<String, Object> params);
+
+    /**
+     * 手动清理闲置连接方法
+     * @param method 方法名称
+     */
+    void idleConnHandler(String method);
 
 }

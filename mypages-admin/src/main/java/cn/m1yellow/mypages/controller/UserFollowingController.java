@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -543,34 +542,40 @@ public class UserFollowingController {
             return CommonResult.failed("获取关注用户记录失败");
         }
 
-        List<UserFollowingItem> userFollowingItemList = new ArrayList<>();
         for (UserFollowingDto following : userFollowingList) {
-            // 获取用户信息
-            UserInfoItem userInfoItem = userFollowingService.doExcavate(following);
-            if (userInfoItem == null) {
-                log.error("用户信息获取失败，following id:" + following.getFollowingId());
-                return CommonResult.failed("用户信息获取失败");
-            }
+            // TODO 多线程执行请求，有时候会出现响应为空的情况，可能是请求网站做了请求限制，或者 httpClient 连接复用问题
+            ThreadPoolUtil.executor(() -> {
+                log.debug(">>>> 线程[{}]开始同步用户[following id:{}]信息", Thread.currentThread().getName(), following.getFollowingId());
+                // 获取用户信息
+                UserInfoItem userInfoItem = userFollowingService.doExcavate(following);
+                if (userInfoItem == null) {
+                    log.error("用户信息获取失败，following id:" + following.getFollowingId());
+                    return;
+                }
 
-            // 更新信息，保存入库
-            UserFollowing saveFollowing = new UserFollowing();
-            BeanUtils.copyProperties(following, saveFollowing);
-            // 修正id
-            saveFollowing.setId(following.getFollowingId());
-            // 去字符串字段两边空格
-            ObjectUtil.stringFiledTrim(saveFollowing);
-            // 保存入库
-            userFollowingService.saveUserInfo(userInfoItem, saveFollowing);
+                // 更新信息，保存入库
+                UserFollowing saveFollowing = new UserFollowing();
+                BeanUtils.copyProperties(following, saveFollowing);
+                // 修正id
+                saveFollowing.setId(following.getFollowingId());
+                // 去字符串字段两边空格
+                ObjectUtil.stringFiledTrim(saveFollowing);
+                // 保存入库
+                userFollowingService.saveUserInfo(userInfoItem, saveFollowing);
 
-            // 避免频繁访问被封
-            /*
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            */
+                // 避免频繁访问被封
+                // 额，既然要等待，还不如直接 for 循环同步执行，或者 mq 异步执行
+                /*
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+                */
+            });
         }
+        // TODO 项目全局使用一个线程池，关闭之后，不能继续使用
+        //ThreadPoolUtil.shutdown();
 
         return CommonResult.success("正在同步信息，请稍后刷新页面查看");
     }
