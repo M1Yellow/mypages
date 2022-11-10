@@ -52,13 +52,12 @@
         <swagger-models.version>1.5.22</swagger-models.version>
         <swagger-annotations.version>1.5.22</swagger-annotations.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <jsoup.version>1.15.2</jsoup.version>
+        <jsoup.version>1.15.3</jsoup.version>
         <jjwt-version>0.9.1</jjwt-version><!-- jjwt 整合库，项目中使用 -->
         <hutool-version>5.8.5</hutool-version>
-        <docker-maven-plugin.version>1.2.2</docker-maven-plugin.version>
+        <docker-maven-plugin.version>1.2.2</docker-maven-plugin.version><!-- 自动部署到 docker，不需要可删掉 -->
         <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
-        <tomcat8-maven-plugin.version>3.0-r1756463</tomcat8-maven-plugin.version>
-        <logstash.version>7.2</logstash.version>
+        <tomcat8-maven-plugin.version>3.0-r1756463</tomcat8-maven-plugin.version><!-- 自动部署到 tomcat，不需要可删掉 -->
         <aliyun-sdk-oss.version>3.15.1</aliyun-sdk-oss.version>
         <mypages-common.version>1.0.0</mypages-common.version>
         <mypages-security.version>1.0.0</mypages-security.version>
@@ -230,7 +229,7 @@
                 <artifactId>httpmime</artifactId>
                 <version>${httpclient.version}</version>
             </dependency>
-            <!-- jsoup 解析 html 页面 -->
+            <!-- jsoup 解析 html -->
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
@@ -263,12 +262,7 @@
                 <artifactId>hutool-core</artifactId>
                 <version>${hutool-version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
-            <dependency>
-                <groupId>net.logstash.logback</groupId>
-                <artifactId>logstash-logback-encoder</artifactId>
-                <version>${logstash.version}</version>
-            </dependency>
+            <!-- SpringBoot Cache 基于 Spring Cache，可以在 Java 应用层面做缓存，也可以整合 redis，主要用来给数据不常变动，但请求较多的方法做缓存 -->
             <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

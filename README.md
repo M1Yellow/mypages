@@ -138,7 +138,7 @@ mypages -- 项目目录
 | Tomcat               | Web应用服务器 `9.0.45`          | https://tomcat.apache.org/                     |
 | Jenkins              | 自动化部署工具 `2.60.3`          | https://github.com/jenkinsci/jenkins/          |
 | Swagger-UI           | 文档生成工具 `2.9.2`            | https://github.com/swagger-api/swagger-ui/     |
-| OSS                  | 对象存储服务 `3.12.0`           | https://github.com/aliyun/aliyun-oss-java-sdk/ |
+| OSS                  | 对象存储服务 `3.15.1`           | https://github.com/aliyun/aliyun-oss-java-sdk/ |
 
 
 ## 开发环境与工具
