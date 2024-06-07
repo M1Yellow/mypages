@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.m1yellow.mypages.mapper.UserPlatformMapper">
+
+    <select id="getUserPlatform" resultType="cn.m1yellow.mypages.dto.UserPlatformDto">
+        select up.name, up.name_en, up.main_page, up.platform_logo, up.platform_long_logo,
+        upr.id, upr.user_id, upr.platform_id, upr.sort_no, upr.is_deleted, upr.create_time, upr.update_time
+        from user_platform_relation upr straight_join user_platform up
+        on upr.platform_id = up.id
+        where upr.is_deleted = 0
+        <if test="userId">
+            and upr.user_id = #{userId}
+        </if>
+        <if test="platformId">
+            and upr.platform_id = #{platformId}
+        </if>
+        order by upr.sort_no desc
+        limit 1
+    </select>
+
+    <select id="queryUserPlatformList" resultType="cn.m1yellow.mypages.dto.UserPlatformDto">
+        select up.name, up.name_en, up.main_page, up.platform_logo, up.platform_long_logo,
+        upr.id, upr.user_id, upr.platform_id, upr.sort_no, upr.is_deleted, upr.create_time, upr.update_time
+        from user_platform_relation upr straight_join user_platform up
+        on upr.platform_id = up.id
+        where upr.is_deleted = 0
+        <if test="userId">
+            and upr.user_id = #{userId}
+        </if>
+        <if test="inIds">
+            and upr.platform_id in
+            <foreach collection="list" item="platformId" separator="," open="(" close=")">
+                #{platformId}
+            </foreach>
+        </if>
+        <if test="notInIds">
+            and upr.platform_id not in
+            <foreach collection="list" item="platformId" separator="," open="(" close=")">
+                #{platformId}
+            </foreach>
+        </if>
+        order by upr.sort_no desc
+        <if test="pageSize and pageSize &gt; 0">
+            limit #{pageNo}, #{pageSize}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.m1yellow.mypages.mapper.UserFollowingMapper">
+
+    <select id="getUserFollowing" parameterType="java.util.Map" resultType="cn.m1yellow.mypages.dto.UserFollowingDto">
+        <!--
+        TODO
+        这个 sql 即使指定 left join 以左表为驱动表，但实际运行时，sql 优化器根据 where 后筛选条件，发现右表的记录更少，
+        就自动以右表为驱动表了，最后导致排序字段没在驱动表，产生临时表！
+        调整：将 left join 改为 straight_join，直接手动指定左边第一个表为驱动表，避免产生 temporary 临时表。
+        结论：sql 优化器默认优化操作，并不一定适合实际场景，别太依赖优化器自动优化。
+        -->
+        select ufr.id, uf.user_key, uf.name, uf.main_page, uf.profile_photo,
+        uf.signature, uf.is_user, uf.create_time, uf.update_time,
+        ufr.user_id, ufr.following_id, ufr.platform_id, ufr.type_id, ufr.is_deleted, ufr.sort_no
+        from user_following_relation ufr straight_join user_following uf on ufr.following_id = uf.id
+        where ufr.is_deleted = 0
+        <if test="userId">
+            and ufr.user_id = #{userId}
+        </if>
+        <if test="followingId">
+            and ufr.following_id = #{followingId}
+        </if>
+        <if test="platformId">
+            and ufr.platform_id = #{platformId}
+        </if>
+        <if test="typeId">
+            and ufr.type_id = #{typeId}
+        </if>
+        order by ufr.sort_no desc
+        limit 1
+    </select>
+
+    <select id="queryUserFollowingList" parameterType="java.util.Map"
+            resultType="cn.m1yellow.mypages.dto.UserFollowingDto">
+        select ufr.id, uf.user_key, uf.name, uf.main_page, uf.profile_photo,
+        uf.signature, uf.is_user, uf.create_time, uf.update_time,
+        ufr.user_id, ufr.following_id, ufr.platform_id, ufr.type_id, ufr.is_deleted, ufr.sort_no
+        from user_following_relation ufr straight_join user_following uf on ufr.following_id = uf.id
+        where ufr.is_deleted = 0
+        <if test="userId">
+            and ufr.user_id = #{userId}
+        </if>
+        <if test="platformId">
+            and ufr.platform_id = #{platformId}
+        </if>
+        <!-- TODO typeId 为 0 表示默认分类，但 test 0 不通过，改为 null 判断 -->
+        <if test="typeId != null">
+            and ufr.type_id = #{typeId}
+        </if>
+        <if test="followingId">
+            and ufr.following_id = #{followingId}
+        </if>
+        order by ufr.sort_no desc, ufr.id asc
+        <if test="pageSize and pageSize &gt; 0">
+            limit #{pageNo}, #{pageSize}
+        </if>
+    </select>
+
+    <!--
+    TODO 在XML中，需要转义的字符有：
+    &　　　&amp;
+    <　　　&lt;
+　　 >　　　&gt;
+　　 ＂　　　&quot;
+　　 ＇　　　&apos;
+    严格来说，在 XML 中只有 ”<” 和 ”&” 是非法的，其它三个都是可以合法存在的
+    也可以使用 <![CDATA[]]> 包含需转义的字符
+    -->
+
+    <select id="queryTypeIdList" resultType="java.lang.Long">
+        select ufr.type_id
+        from user_following_relation ufr
+        where ufr.is_deleted = 0
+        <if test="userId">
+            and ufr.user_id = #{userId}
+        </if>
+        <if test="platformId">
+            and ufr.platform_id = #{platformId}
+        </if>
+        group by ufr.type_id
+    </select>
+
+    <select id="getFollowingCount" parameterType="java.util.Map" resultType="java.lang.Long">
+        select count(*)
+        from user_following_relation ufr straight_join user_following uf on ufr.following_id = uf.id
+        where ufr.is_deleted = 0
+        <if test="userId">
+            and ufr.user_id = #{userId}
+        </if>
+        <if test="platformId">
+            and ufr.platform_id = #{platformId}
+        </if>
+        <if test="typeId">
+            and ufr.type_id = #{typeId}
+        </if>
+        <if test="followingId">
+            and ufr.following_id = #{followingId}
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cn.m1yellow.mypages</groupId>
+        <artifactId>mypages</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <!-- 第三方数据访问模块 -->
+    <groupId>cn.m1yellow.mypages</groupId>
+    <artifactId>mypages-visit</artifactId>
+    <version>1.0.0</version>
+    <name>mypages-visit</name>
+    <description>3rd data visit module</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- mypages common 通用模块 -->
+        <dependency>
+            <groupId>cn.m1yellow.mypages</groupId>
+            <artifactId>mypages-common</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

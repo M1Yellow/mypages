@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cn.m1yellow.mypages</groupId>
+        <artifactId>mypages</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <!-- 代码生成模块 -->
+    <groupId>cn.m1yellow.mypages</groupId>
+    <artifactId>mypages-generator</artifactId>
+    <version>1.0.0</version>
+    <name>mypages-generator</name>
+    <description>mypages generator module</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- mypages common 通用模块 -->
+        <dependency>
+            <groupId>cn.m1yellow.mypages</groupId>
+            <artifactId>mypages-common</artifactId>
+        </dependency>
+
+        <!-- mysql 连接驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+        </dependency>
+        <!-- druid 连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+        </dependency>
+        <!-- mybatis-plus 代码生成器 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+        </dependency>
+        <!-- velocity 模板引擎，mybatis-plus 代码生成器需要，没有会报错 -->
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+        </dependency>
+        <!-- freemarker -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: mypages-admin
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      enabled: true # 开启文件上传
+      max-file-size: 3MB # 限制文件上传大小
+      max-request-size: 10MB # 单次请求上传大小
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher  # 解决 swaggerUI 不匹配接口
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8 # 不指定会默认系统时区
+
+server:
+  error:
+    whitelabel:
+      enabled: false # 关掉 Whitelabel Error Page
+    path: /sys/error # 全局错误处理路径

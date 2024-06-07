@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cn.m1yellow.mypages</groupId>
+        <artifactId>mypages</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <!-- 后台接口服务模块 -->
+    <groupId>cn.m1yellow.mypages</groupId><!-- 冗余提示不用管，留着后续拆分为微服务项目 -->
+    <artifactId>mypages-admin</artifactId>
+    <version>1.0.0</version>
+    <name>mypages-admin</name>
+    <description>mypages admin module</description>
+    <packaging>jar</packaging><!-- 使用默认内嵌的 tomcat 运行 -->
+    <!--<packaging>war</packaging>--><!-- 打包部署到 tomcat -->
+
+
+    <!--
+    依赖关系
+    admin
+    -visit
+     -common
+    -security
+     -user 用户数据操作相关依赖（mybatis-plus）
+      -generator 数据库连接操作相关依赖（mysql连接驱动）
+       -common
+    -->
+
+    <dependencies>
+        <!-- mypages security 安全模块 -->
+        <dependency>
+            <groupId>cn.m1yellow.mypages</groupId>
+            <artifactId>mypages-security</artifactId>
+        </dependency>
+        <!-- mypages visit 第三方数据访问模块 -->
+        <dependency>
+            <groupId>cn.m1yellow.mypages</groupId>
+            <artifactId>mypages-visit</artifactId>
+        </dependency>
+        <!-- Spring AMQP 依赖 -->
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-amqp -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        -->
+    </dependencies>
+
+    <!--
+    maven 仓库的优先级
+    1、本地仓库
+    2、settings 里面 profile 中设置的仓库
+    3、pom 文件中的 repository
+    4、mirror 仓库
+    -->
+
+    <build>
+        <!-- 项目打包最终名称 -->
+        <finalName>${project-name-prod}</finalName>
+        <!-- 静态资源配置 -->
+        <resources>
+            <!-- TODO mapper.xml 文件没有放在 resources 目录时，需要额外指定 -->
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <!-- 是否给资源文件中的 ${} 占位符变量赋值替换，默认 false -->
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <!-- 多模块打包，只需在启动类所在模块的POM文件指定打包插件 -->
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,34 @@
+version: '3.9'
+services:
+  mypages:
+    build: .
+    image: mypages
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql01
+    restart: always
+    volumes:
+      - "/home/mysql/conf:/etc/mysql/conf.d"
+      - "/home/mysql/data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456.a
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:latest
+    container_name: redis01
+    restart: always
+    volumes:
+      - "/home/redis/data:/data"
+      - "/home/redis/conf/redis.conf:/etc/redis/redis.conf"
+    command: redis-server /etc/redis/redis.conf --requirepass 123456
+    ports:
+      - "6379:6379"

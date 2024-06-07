@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- 上方为 Maven xml 的约束，创建项目后默认不用改动 -->
+
+    <!-- Maven 模型的版本，对于 Maven2 和 Maven3 来说，它只能是 4.0.0 -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 父依赖 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
+        <relativePath/><!-- lookup parent from repository -->
+    </parent>
+
+    <!-- 当前项目信息 -->
+    <!-- 公共父模块 -->
+    <groupId>cn.m1yellow.mypages</groupId>
+    <artifactId>mypages</artifactId>
+    <version>1.0.0</version>
+    <name>MyPages</name>
+    <description>mypages parent module</description>
+    <packaging>pom</packaging>
+
+    <!-- 聚合模块 -->
+    <modules>
+        <module>mypages-admin</module>
+        <module>mypages-common</module>
+        <module>mypages-generator</module>
+        <module>mypages-security</module>
+        <module>mypages-user</module>
+        <module>mypages-visit</module>
+    </modules>
+
+    <!-- 参数配置 -->
+    <properties>
+        <project-name-prod>mypages</project-name-prod>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <skipTests>true</skipTests><!-- Maven 全局配置打包跳过测试 -->
+        <springboot.version>2.7.18</springboot.version>
+        <mysql-connector.version>8.4.0</mysql-connector.version><!-- MySQL 连接驱动版本 -->
+        <druid-starter.version>1.2.23</druid-starter.version><!-- druid 连接池 -->
+        <mybatis-plus-starter.version>3.5.6</mybatis-plus-starter.version><!-- mybatis-plus -->
+        <mpg.version>3.5.6</mpg.version><!-- mybatis-plus 代码生成器 -->
+        <velocity-core.version>2.3</velocity-core.version><!-- mybatis-plus 代码生成器需要的模板引擎 -->
+        <freemarker.version>2.3.32</freemarker.version><!-- mybatis-plus 代码生成器自定义模板引擎 -->
+        <swagger.version>3.0.0</swagger.version><!-- swagger3 停止维护了，准备替换其他文档类库 -->
+        <httpclient.version>4.5.14</httpclient.version><!-- httpclient 感觉不太好用，各种参数配置和调教 -->
+        <jsoup.version>1.17.2</jsoup.version><!-- 网页 DOM 解析 -->
+        <jjwt-version>0.12.5</jjwt-version><!-- jjwt 整合库，项目中使用 -->
+        <hutool-version>5.8.27</hutool-version><!-- hutool 工具库，最小化引入即可 -->
+        <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version><!-- 阿里云OSS SDK -->
+        <mypages-common.version>1.0.0</mypages-common.version><!-- mypages-common 公共模块 -->
+        <mypages-security.version>1.0.0</mypages-security.version><!-- mypages-security 安全模块 -->
+        <mypages-generator.version>1.0.0</mypages-generator.version><!-- mypages-generator 代码生成模块 -->
+        <mypages-visit.version>1.0.0</mypages-visit.version><!-- mypages-visit 数据访问模块 -->
+        <mypages-user.version>1.0.0</mypages-user.version><!-- mypages-user 用户模块 -->
+
+    </properties>
+
+    <!-- maven中的依赖作用范围概述：https://www.cnblogs.com/satire/p/15068971.html -->
+    <!-- 项目或模块自身引用的依赖 -->
+    <!-- 父模块的依赖尽可能是子项目共用的 -->
+    <dependencies>
+        <!-- web 启动器 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- aop 依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <!-- actuator 应用监控，留意【未授权访问漏洞】 -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        -->
+        <!-- TODO 打 war 包部署到外部 tomcat 时，移除内置的。如果不用外部 tomcat 部署，不用移除 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <!-- 打包阶段 exclude 剔除 -->
+            <!--<scope>provided</scope>--><!-- 使用 jar 包方式启动不用移除 -->
+        </dependency>
+        <!-- spring-boot 单元测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- common-lang3 util 工具类 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <!-- swagger 3.0 已经解决了 Swagger 2.9.2 版本 NumberFormatException -->
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+    </dependencies>
+
+    <!--
+    Maven 中的 dependencyManagement 意义：
+    1、在 Maven 中 dependencyManagement 的作用其实相当于一个对所依赖 jar 包进行版本管理的管理器。
+    2、pom.xml 文件中，jar 的版本判断的两种途径
+        1）如果 dependencies 里的 dependency 自己没有声明 version 元素，那么 maven 就会到 dependencyManagement 里面去找有没有对该 artifactId 和 groupId 进行过版本声明，如果有，就继承它，如果没有就会报错，告诉你必须为 dependency 声明一个 version。
+        2）如果 dependencies 中的 dependency 声明了 version，那么无论 dependencyManagement 中有无对该 jar 的 version 声明，都以 dependency 里的 version 为准。
+    3、1）dependencies 即使在子项目中不写该依赖项，那么子项目仍然会从父项目中继承该依赖项（全部继承）
+       2）dependencyManagement 里只是声明依赖，并不实现引入，因此子项目需要显示的声明需要用的依赖。如果不在子项目中声明依赖，是不会从父项目中继承下来的；只有在子项目中写了该依赖项，并且没有指定具体版本，才会从父项目中继承该项，并且 version 和 scope 都读取自父 pom;另外如果子项目中指定了版本号，那么会使用子项目中指定的 jar 版本。
+    -->
+
+    <!-- 只是对版本进行管理，不会实际引入jar -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- mypages common 通用模块 -->
+            <dependency>
+                <groupId>cn.m1yellow.mypages</groupId>
+                <artifactId>mypages-common</artifactId>
+                <version>${mypages-common.version}</version>
+            </dependency>
+            <!-- mypages security 安全模块 -->
+            <dependency>
+                <groupId>cn.m1yellow.mypages</groupId>
+                <artifactId>mypages-security</artifactId>
+                <version>${mypages-security.version}</version>
+            </dependency>
+            <!-- mypages generator 代码生成器模块 -->
+            <dependency>
+                <groupId>cn.m1yellow.mypages</groupId>
+                <artifactId>mypages-generator</artifactId>
+                <version>${mypages-generator.version}</version>
+            </dependency>
+            <!-- mypages visit 第三方数据访问模块 -->
+            <dependency>
+                <groupId>cn.m1yellow.mypages</groupId>
+                <artifactId>mypages-visit</artifactId>
+                <version>${mypages-visit.version}</version>
+            </dependency>
+            <!-- mypages user 用户信息模块 -->
+            <dependency>
+                <groupId>cn.m1yellow.mypages</groupId>
+                <artifactId>mypages-user</artifactId>
+                <version>${mypages-user.version}</version>
+            </dependency>
+            <!-- mysql 连接驱动 -->
+            <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql-connector.version}</version>
+            </dependency>
+            <!-- druid -->
+            <!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid-starter.version}</version>
+            </dependency>
+            <!-- mybatis -->
+            <!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+            <!--
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            -->
+            <!-- mybatis-plus 非官方开发的。引入后就不用加 mybatis 的依赖了 -->
+            <!-- 注意！！坑了大半天！一定要按照官网教程，引入 mybatis-plus-boot-starter 依赖，而不是 mybatis-plus -->
+            <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus-starter.version}</version>
+            </dependency>
+            <!-- mybatis-plus 代码生成器 -->
+            <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-generator -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <version>${mpg.version}</version>
+            </dependency>
+            <!-- velocity 模板引擎，mybatis-plus 代码生成器需要 -->
+            <!-- https://mvnrepository.com/artifact/org.apache.velocity/velocity-engine-core -->
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-engine-core</artifactId>
+                <version>${velocity-core.version}</version>
+            </dependency>
+            <!-- freemarker -->
+            <!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
+            </dependency>
+            <!-- httpclient 手动指定，虽然 spring boot 也内置了 -->
+            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+            <!-- HttpClient 涉及文件上传需要的包 -->
+            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+            <!-- jsoup 解析 html -->
+            <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
+            </dependency>
+            <!-- JWT 组件依赖 -->
+            <!-- 方式一：引入整合版本 -->
+            <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt-version}</version>
+            </dependency>
+            <!-- hutool 工具类集合 -->
+            <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-core -->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-core</artifactId>
+                <version>${hutool-version}</version>
+            </dependency>
+            <!-- 阿里云 对象存储 OSS SDK -->
+            <!-- https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss -->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun-sdk-oss.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

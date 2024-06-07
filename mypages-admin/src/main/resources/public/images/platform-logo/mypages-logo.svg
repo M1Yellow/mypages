@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #1b1b1b;
+        filter: url(#filter);
+      }
+
+      .cls-2 {
+        fill: #f3f3f3;
+        filter: url(#filter-2);
+      }
+
+      .cls-3 {
+        fill: #ec6941;
+        filter: url(#filter-3);
+      }
+
+      .cls-4 {
+        fill: #fff45c;
+        filter: url(#filter-4);
+      }
+
+      .cls-5 {
+        fill: #5f52a0;
+        filter: url(#filter-5);
+      }
+
+      .cls-6 {
+        fill: #32b16c;
+        filter: url(#filter-6);
+      }
+
+      .cls-7 {
+        fill: #556fb5;
+        filter: url(#filter-7);
+      }
+
+      .cls-8 {
+        fill: #a0a0a0;
+        filter: url(#filter-8);
+      }
+    </style>
+    <filter id="filter" x="325" y="-73" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+    <filter id="filter-2" x="273" y="12" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-color="#999" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+    <filter id="filter-3" x="222" y="96" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-color="#c33" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+    <filter id="filter-4" x="170" y="183" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-color="#cc3" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+    <filter id="filter-5" x="115" y="265" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-color="#336" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+    <filter id="filter-6" x="64" y="356" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-color="#393" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+    <filter id="filter-7" x="13" y="437" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-color="#369" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+    <filter id="filter-8" x="-43" y="524" width="793" height="580" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dx="5" in="SourceAlpha"/>
+      <feGaussianBlur result="blur"/>
+      <feFlood result="flood" flood-color="#966" flood-opacity="0.59"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feOffset result="offset-2" dx="37.087" dy="14.984" in="SourceAlpha"/>
+      <feGaussianBlur result="blur-2" stdDeviation="10.954"/>
+      <feFlood result="flood-2" flood-opacity="0.3"/>
+      <feComposite result="composite-2" operator="in" in2="blur-2"/>
+      <feBlend result="blend" mode="multiply" in2="composite"/>
+      <feBlend result="blend-2" in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="画板_1" data-name="画板 1">
+    <g id="pages">
+      <rect id="黑的" class="cls-1" x="409" y="33" width="550" height="337"/>
+      <rect id="白的" class="cls-2" x="357" y="118" width="550" height="337"/>
+      <rect id="红的" class="cls-3" x="306" y="202" width="550" height="337"/>
+      <rect id="黄的" class="cls-4" x="254" y="289" width="550" height="337"/>
+      <rect id="紫的" class="cls-5" x="199" y="371" width="550" height="337"/>
+      <rect id="绿的" class="cls-6" x="148" y="462" width="550" height="337"/>
+      <rect id="蓝的" class="cls-7" x="97" y="543" width="550" height="337"/>
+      <rect id="灰的" class="cls-8" x="41" y="630" width="550" height="337"/>
+    </g>
+  </g>
+</svg>

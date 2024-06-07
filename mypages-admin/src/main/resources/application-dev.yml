@@ -1,0 +1,150 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    druid:
+      # TODO 【注意！！生产环境配置信息不要提交Git】
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/mypages?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=GMT%2B8
+      username: root
+      password: 123456.a
+      initial-size: 10 # 初始连接数量
+      async-init: true # initialSize数量较多时，打开会加快应用启动时间
+      max-active: 100 # 最大连接数量
+      min-idle: 20 # 最小空闲连接数量
+      max-wait: 6000 # 获取连接等待超时的时间
+      time-between-eviction-runs-millis: 60000 # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      min-evictable-idle-time-millis: 300000 # 一个连接在池中最小生存的时间，也就是连接空闲多少时间后被回收，单位是毫秒
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      validation-query: SELECT 1 # 检测连接是否有效
+      #validation-query: SELECT 1 FROM DUAL # Oracle
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: 123456.a
+      #filters: stat,wall # 启用监控和防SQL注入
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 5000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+
+  # TODO 【注意！！生产环境配置信息不要提交Git】
+  redis:
+    host: 127.0.0.1
+    database: 0 # Redis数据库索引（默认为0）
+    port: 6379
+    password: 123456.a
+    timeout: 6000ms # 连接超时时间（毫秒）
+
+  cache: # spirng 缓存管理参数配置
+    redis:
+      time-to-live: 86400000 # 毫秒，一天 24 * 60 * 60 * 1000
+
+  # TODO 【注意！！生产环境配置信息不要提交Git】
+  rabbitmq:
+    username: admin
+    password: 123456.a
+    virtual-host: /
+    host: 127.0.0.1
+    port: 5672
+
+
+mybatis-plus:
+  # xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）
+  mapper-locations: classpath*:/mapper/**/*.xml
+  # 实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: cn.m1yellow.mypages.*.entity
+  global-config:
+    banner: false
+    db-config:
+      # 主键类型，AUTO-数据库ID自增；
+      id-type: AUTO
+      logic-delete-field: is_deleted # 数据库表逻辑删除字段
+  # 原生配置
+  configuration:
+    # 驼峰命名映射
+    map-underscore-to-camel-case: true
+    # 允许设置 null
+    call-setters-on-nulls: true
+
+
+# logback 日志配置
+# 日志加载顺序：logback.xml -> application.properties -> logback-spring.xml
+# xml 中配置的日志目录，相对路径对直接运行的项目不生效，需要部署后才能生效。IDEA 直接运行使用的是内置代理运行环境，指定的相对路径在内部环境无效
+# 【IDEA运行环境】
+# path 和 name 同时设置的话，只有name生效，文件位置在项目根目录
+# logging.config 加载配置文件，如果外部配置和xml配置同时配置了参数，最终取xml的配置
+logging:
+  config: classpath:config/logback-spring.xml
+  log-path: logs
+  log-stash-host: 127.0.0.1:4560
+
+
+# TODO 【注意！！生产环境配置信息不要提交Git】
+# jwt 配置
+jwt:
+  tokenHeader: Authorization # JWT存储的请求头
+  base64Secret: string length ≥ 32 # JWT加解密使用的密钥
+  expiration: 7200 # JWT的超期限时间，单位：秒。(例：60*60*24*7=604800)
+  tokenStart: 'Bearer'  # JWT负载中拿到开头，getter 方法会添加一个空格
+
+
+# spring security 不过滤资源路径列表
+secure:
+  ignored:
+    urls:
+      - /swagger**/**
+      - /webjars/**
+      - /**/v*/api-docs
+      - /**/*.html
+      - /**/*.js
+      - /**/*.css
+      - /**/*.png
+      - /**/*.map
+      - /**/images/**
+      - /**/css/**
+      - /**/js/**
+      - /druid/**
+      - /favicon.ico
+      - /home
+      - /home/
+      - /user/login
+      - /user/logout
+      - /user/register
+      - /error
+
+
+# 用户头像保存位置
+user:
+  avatar:
+    savedir: public/images/user-profile-photo/
+
+
+# OSS 相关配置信息，外网访问需要流量、请求费用，建议购买 OSS 资源包
+aliyun:
+  oss:
+    enable: 1 # 是否使用OSS，1-使用，不为 1 或者没有 aliyun.oss 相关配置，则不使用。用于控制是否加载 OSS 服务类
+    # 外网查看、下载会产生流量费用，上传免费。内网都免费。配置内网地址，避免产生流量费用。
+    # 内网：oss-cn-shenzhen-internal.aliyuncs.com 外网：oss-cn-shenzhen.aliyuncs.com
+    # TODO 【注意！！生产环境配置信息不要提交Git】
+    endpoint: oss-cn-shenzhen.aliyuncs.com
+    accessKeyId: your accessKeyId of OSS # 访问身份验证中用到用户标识
+    accessKeySecret: your accessKeySecret of OSS # 用户用于加密签名字符串和oss用来验证签名字符串的密钥
+    bucketName: your bucket name # oss的存储空间
+    policy:
+      expire: 300 # 签名有效期(S)
+    maxSize: 10 # 上传文件大小(M)
+    callback: http://127.0.0.1:8081/aliyun/oss/callback # 文件上传成功后的回调地址
+    dir:
+      prefix: #images/ # 上传文件夹路径前缀
+      # 用户头像保存到 OSS
+      avatar: images/user-profile-photo/

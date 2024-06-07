@@ -1,0 +1,54 @@
+package cn.m1yellow.mypages.config;
+
+import cn.m1yellow.mypages.common.constant.Headers;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+/**
+ * Spring MVC 配置，如果没有用到 MVC（比如只提供 restful 接口支持），可以不用管这个配置类
+ */
+@Configuration
+//@EnableWebMvc
+public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/resources/**")
+                .addResourceLocations("/resources/")
+                .setCachePeriod(Integer.parseInt(Headers.CACHE_CONTROL_MAX_AGE.getHeadValues()));
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        // 允许跨越发送 cookie
+        config.setAllowCredentials(true);
+        // 允许所有域名进行跨域调用，可自定义传入受信任的 ip
+        config.setAllowedOrigins(Collections.singletonList("*"));
+        //config.setAllowedOriginPatterns(Collections.singletonList("*")); // SpringBoot 2.4.0
+        // 允许所有请求方法
+        config.setAllowedMethods(Collections.singletonList("*"));
+        // 允许所有请求头属性
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        // 暴露 header 中的其他属性给客户端应用程序
+        config.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"
+        ));
+        // 这是 Web MVC 的设置，如果有使用 spring security，它会默认关闭缓存，需要到 spring security 的配置中设置
+        config.setMaxAge(Long.parseLong(Headers.CACHE_CONTROL_MAX_AGE.getHeadValues()));
+        source.registerCorsConfiguration("/**", config); // /** 表示本应用的所有方法都会去处理跨域请求
+        return new CorsFilter(source);
+    }
+
+}

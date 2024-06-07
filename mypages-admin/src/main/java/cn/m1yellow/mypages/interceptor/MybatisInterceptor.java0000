@@ -1,0 +1,56 @@
+package cn.m1yellow.mypages.interceptor;
+
+import cn.hutool.core.util.ReflectUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Signature;
+import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Field;
+
+/**
+ * TODO 个人觉得使用这种耦合依赖框架的方式不太好，一旦框架版本升级有改动，功能可能就用不了了，还得改动，且不容易发现。
+ *  另外，并不是大多数人都有能力看懂和分析框架原理，通用性不够
+ */
+
+@Slf4j
+@Component
+@Intercepts({@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
+public class MybatisInterceptor implements Interceptor {
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+        MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
+        String sqlId = mappedStatement.getId();
+        log.debug("------sqlId------" + sqlId);
+        SqlCommandType sqlCommandType = mappedStatement.getSqlCommandType();
+        Object parameter = invocation.getArgs()[1];
+        log.debug("------sqlCommandType------" + sqlCommandType);
+
+        if (parameter == null) {
+            return invocation.proceed();
+        }
+        if (SqlCommandType.INSERT == sqlCommandType || SqlCommandType.UPDATE == sqlCommandType) {
+            Field[] fields = ReflectUtil.getFields(parameter.getClass());
+            for (Field field : fields) {
+                if (field.getType().equals(String.class)) {
+                    field.setAccessible(true);
+                    Object objVal = field.get(parameter);
+                    if (objVal != null) {
+                        String newVal = String.valueOf(objVal).trim();
+                        field.set(parameter, newVal);
+                    }
+                    field.setAccessible(false);
+                }
+            }
+        }
+
+        return invocation.proceed();
+    }
+
+}

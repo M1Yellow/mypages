@@ -1,0 +1,167 @@
+package cn.m1yellow.mypages.security.component;
+
+import cn.m1yellow.mypages.common.api.CommonResult;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.*;
+
+
+@Order(2)
+@Component
+public class RequestParamsFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        // 获取请求地址，如：/test/list
+        String requestURI = request.getRequestURI();
+        // 哪些请求直接放行
+        if (requestURI.contains("/callBack")) {
+            filterChain.doFilter(request, servletResponse);
+            return;
+        }
+        ServletRequest requestWrapper = new BodyReaderHttpServletRequestWrapper(request);
+        String bodyString = ((BodyReaderHttpServletRequestWrapper) requestWrapper).getBody();
+        // 将请求的参数转换为json对象
+        JSONObject jsonObject = JSON.parseObject(bodyString);
+        // 获取参数base里的json对象
+        JSONObject base = (JSONObject) jsonObject.get("base");
+        String signature = base.getString("signature");
+        // 删除客户端传过来的签名
+        base.remove("signature");
+        // 将base参数转换为map对象
+        Map map = generateSignStr(base);
+        // 拼装参数（按照字段名首字母排序）
+        String param = formatUrlMap(map, false, false);
+        // 验证参数签名是否正确
+        if (!DigestUtils.md5Hex(param).equals(signature)) {
+            outputStream(servletResponse, "参数被篡改...");
+            return;
+        }
+        // 比较请求的参数是否过期
+        if (!validateTimeStamp(base.getLong("timestamp"))) {
+            outputStream(servletResponse, "请求参数已过期...");
+            return;
+        }
+        // 拦截器放行，继续执行业务方法
+        filterChain.doFilter(requestWrapper, servletResponse);
+        return;
+    }
+
+    /**
+     * 将参数按照字段名升序排序
+     *
+     * @param paraMap
+     * @param urlEncode
+     * @param keyToLower
+     * @return
+     */
+    public static String formatUrlMap(Map<String, Object> paraMap, boolean urlEncode, boolean keyToLower) {
+        String buff = "";
+        Map<String, Object> tmpMap = paraMap;
+        try {
+            List<Map.Entry<String, Object>> infoIds = new ArrayList<Map.Entry<String, Object>>(tmpMap.entrySet());
+            // 对所有传入参数按照字段名的 ASCII 码从小到大排序（字典序）
+            Collections.sort(infoIds, new Comparator<Map.Entry<String, Object>>() {
+                @Override
+                public int compare(Map.Entry<String, Object> o1, Map.Entry<String, Object> o2) {
+                    return (o1.getKey()).toString().compareTo(o2.getKey());
+                }
+            });
+            // 构造 URL 键值对的格式
+            StringBuilder buf = new StringBuilder();
+            for (Map.Entry<String, Object> item : infoIds) {
+                if (StringUtils.isNotBlank(item.getKey())) {
+                    String key = item.getKey();
+                    Object val = item.getValue();
+                    if (urlEncode) {
+                        val = URLEncoder.encode(val.toString(), "utf-8");
+                    }
+                    if (keyToLower) {
+                        buf.append(key.toLowerCase() + "=" + val);
+                    } else {
+                        buf.append(key + "=" + val);
+                    }
+                    buf.append("&");
+                }
+            }
+
+            buff = buf.toString();
+            if (!buff.isEmpty()) {
+                buff = buff.substring(0, buff.length() - 1);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return buff;
+    }
+
+    /**
+     * 向客户端返回响应信息（json格式）
+     *
+     * @param servletResponse
+     * @param message
+     */
+    private void outputStream(ServletResponse servletResponse, String message) {
+        try {
+            String string = JSON.toJSONString(CommonResult.failed(message));
+            servletResponse.setContentType("application/json;charset=UTF-8");
+            servletResponse.getOutputStream().write(string.getBytes("UTF-8"));
+            servletResponse.getOutputStream().close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 将json格式转换为map对象
+     *
+     * @param base
+     * @return
+     */
+    private Map generateSignStr(JSONObject base) {
+        String timestamp = base.getString("timestamp");
+        String nonce = base.getString("nonce");
+        String userId = base.getString("userId");
+        Map map = new HashMap();
+        map.put("nonce", nonce);
+        map.put("timestamp", timestamp);
+        map.put("userId", userId);
+        return map;
+    }
+
+    /**
+     * 校验请求是否已失效
+     *
+     * @param timestamp
+     * @return
+     */
+    public boolean validateTimeStamp(long timestamp) {
+        Long times = (System.currentTimeMillis() - timestamp) / (1000 * 60);
+        // 验证时间戳是否超过30分钟
+        if (Math.abs(times) > 30) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+}
