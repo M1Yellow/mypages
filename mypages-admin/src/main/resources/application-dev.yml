@@ -85,7 +85,7 @@ mybatis-plus:
 # logging.config 加载配置文件，如果外部配置和xml配置同时配置了参数，最终取xml的配置
 logging:
   config: classpath:config/logback-spring.xml
-  log-path: logs
+  log-path: logs/mypages
   log-stash-host: 127.0.0.1:4560
 
 

@@ -23,4 +23,6 @@ public interface UserFollowingRemarkService extends IService<UserFollowingRemark
 
     long getRemarkCount(Long userId, Long followingId);
 
+    boolean removeAll(Long userId, Long followingId);
+
 }

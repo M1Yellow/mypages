@@ -34,7 +34,7 @@ public class UserFollowingRemarkServiceImpl extends ServiceImpl<UserFollowingRem
 
     @Override
     public List<UserFollowingRemark> queryUserFollowingRemarkListRegularly(Map<String, Object> params) {
-        QueryWrapper<UserFollowingRemark> followingRemarkQueryWrapper = new QueryWrapper();
+        QueryWrapper<UserFollowingRemark> followingRemarkQueryWrapper = new QueryWrapper<>();
         followingRemarkQueryWrapper.eq("user_id", params.get("user_id"));
         followingRemarkQueryWrapper.eq("following_id", params.get("following_id"));
         //followingRemarkQueryWrapper.eq("is_deleted", 0); // 已经有逻辑删除功能
@@ -48,7 +48,7 @@ public class UserFollowingRemarkServiceImpl extends ServiceImpl<UserFollowingRem
 
         log.info(">>>> saveRemarks, remarkList={}, following={}", remarkList, following);
 
-        if (null == remarkList || remarkList.isEmpty()) {
+        if (CollectionUtils.isEmpty(remarkList)) {
             log.info(">>>> save remark: remarkList is invalid.");
             return false;
         }
@@ -138,4 +138,12 @@ public class UserFollowingRemarkServiceImpl extends ServiceImpl<UserFollowingRem
         return count(remarkQueryWrapper);
     }
 
+    @Override
+    public boolean removeAll(Long userId, Long followingId) {
+        QueryWrapper<UserFollowingRemark> remarkQueryWrapper = new QueryWrapper<>();
+        remarkQueryWrapper.eq("user_id", userId);
+        remarkQueryWrapper.eq("following_id", followingId);
+
+        return remove(remarkQueryWrapper);
+    }
 }

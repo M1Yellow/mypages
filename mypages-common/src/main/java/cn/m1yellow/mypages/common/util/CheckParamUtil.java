@@ -24,7 +24,7 @@ public class CheckParamUtil {
      */
     public static void validate(Object obj, Class<?>... groups) {
         Set<ConstraintViolation<Object>> resultSet = validator.validate(obj, groups);
-        if (!resultSet.isEmpty()) {
+        if (null != resultSet && !resultSet.isEmpty()) {
             // 如果存在错误结果，则将其解析并进行拼凑后异常抛出
             List<String> errorMessageList = resultSet.stream().map(o -> o.getMessage()).collect(Collectors.toList());
             StringBuilder errorMessage = new StringBuilder();

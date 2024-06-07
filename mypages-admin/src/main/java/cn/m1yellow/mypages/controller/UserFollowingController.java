@@ -213,13 +213,13 @@ public class UserFollowingController {
             followingItem.setUserFollowing(reloadFollowing);
 
             // 重新加载用户标签
-            if (!CollectionUtils.isEmpty(remarkList)) {
-                Map<String, Object> queryParams = new HashMap<>();
-                queryParams.put("user_id", following.getUserId());
-                queryParams.put("following_id", saveFollowing.getId());
-                List<UserFollowingRemark> followingRemarkList = userFollowingRemarkService.queryUserFollowingRemarkListRegularly(queryParams);
-                followingItem.setUserFollowingRemarkList(followingRemarkList);
-            }
+            //if (!CollectionUtils.isEmpty(remarkList)) {
+            Map<String, Object> queryParams = new HashMap<>(2);
+            queryParams.put("user_id", following.getUserId());
+            queryParams.put("following_id", saveFollowing.getId());
+            List<UserFollowingRemark> followingRemarkList = userFollowingRemarkService.queryUserFollowingRemarkListRegularly(queryParams);
+            followingItem.setUserFollowingRemarkList(followingRemarkList);
+            //}
         }
 
         // TODO 注意，上面用户头像文件已经上传完成了，如果下面的代码出错异常（放任何地方，只要代码异常，数据库记录会回滚，但已上传的文件不能自动撤销），
@@ -330,6 +330,7 @@ public class UserFollowingController {
     private List<UserFollowingRemark> doSaveUserFollowingRemark(UserFollowingDto following) {
         List<UserFollowingRemark> remarkList = null;
         String remarkListJson = following.getRemarkListJson();
+        log.info(">>>> doSaveUserFollowingRemark remarkListJson={}", remarkListJson);
         if (StringUtils.isNotBlank(remarkListJson)) {
             remarkList = JSONUtil.toList(remarkListJson, UserFollowingRemark.class);
             // 保存用户标签
@@ -344,6 +345,11 @@ public class UserFollowingController {
                     log.error("保存用户标签失败");
                     throw new AtomicityException("保存用户标签失败");
                 }
+            }
+        } else { // 为 null，则移除所有标签
+            if (!userFollowingRemarkService.removeAll(following.getUserId(), following.getFollowingId())) {
+                log.error("移除用户所有标签失败");
+                throw new AtomicityException("移除用户所有标签失败");
             }
         }
 
@@ -577,7 +583,7 @@ public class UserFollowingController {
         if (null != typeId) params.put("typeId", typeId);
         List<UserFollowingDto> userFollowingList = userFollowingService.queryUserFollowingList(params);
 
-        if (null == userFollowingList || userFollowingList.isEmpty()) {
+        if (CollectionUtils.isEmpty(userFollowingList)) {
             log.error("获取关注用户记录失败");
             return CommonResult.failed("获取关注用户记录失败");
         }

@@ -81,7 +81,7 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
         }
 
         List<SysUserRole> userRoleList = queryUserRoleListByUserId(userId);
-        if (null == userRoleList || userRoleList.isEmpty()) {
+        if (CollectionUtils.isEmpty(userRoleList)) {
             return null;
         }
 
