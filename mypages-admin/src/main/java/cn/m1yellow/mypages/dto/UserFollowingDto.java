@@ -61,7 +61,7 @@ public class UserFollowingDto implements Serializable {
     @NotBlank(message = "用户主页不能为空")
     //@Email(message = "主页地址格式不正确") // 不用自带的 @Email 校验，前后端使用同一验证格式
     @Pattern(regexp = "(https?)://([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\\.)*[a-zA-Z0-9-]+\\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*", message = "主页地址格式不正确")
-    @Size(max = 100, message = "主页长度不能超过{max}")
+    @Size(max = 200, message = "主页长度不能超过{max}")
     @ApiModelProperty(value = "主页地址")
     private String mainPage;
 
