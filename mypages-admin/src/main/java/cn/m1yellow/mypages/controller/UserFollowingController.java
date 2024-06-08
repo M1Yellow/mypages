@@ -185,7 +185,7 @@ public class UserFollowingController {
             following.setUserKey(userKey);
         }
 
-        // 保存关注用户
+        // TODO 保存关注用户【方法异常回滚后，数据库表id已经自增了】
         UserFollowing saveFollowing = doSaveUserFollowing(following);
         // 设置保存后的 following id
         following.setFollowingId(saveFollowing.getId());
@@ -194,7 +194,7 @@ public class UserFollowingController {
         doSaveUserFollowingRelation(following);
 
         // 解析保存用户标签列表
-        List<UserFollowingRemark> remarkList = doSaveUserFollowingRemark(following);
+        List<UserFollowingRemark> remarkList = doSaveUserFollowingRemark(following, isNew);
 
         // 如果是用户，执行一次信息同步
         if (following.getIsUser()) doOnceSyncForNewFollowing(following, saveFollowing);
@@ -325,9 +325,10 @@ public class UserFollowingController {
      * 保存用户标签
      *
      * @param following 前台传入的关注对象封装
+     * @param isNew     是否为新增关注用户
      * @return List<UserFollowingRemark> 标签列表
      */
-    private List<UserFollowingRemark> doSaveUserFollowingRemark(UserFollowingDto following) {
+    private List<UserFollowingRemark> doSaveUserFollowingRemark(UserFollowingDto following, boolean isNew) {
         List<UserFollowingRemark> remarkList = null;
         String remarkListJson = following.getRemarkListJson();
         log.info(">>>> doSaveUserFollowingRemark remarkListJson={}", remarkListJson);
@@ -346,7 +347,7 @@ public class UserFollowingController {
                     throw new AtomicityException("保存用户标签失败");
                 }
             }
-        } else { // 为 null，则移除所有标签
+        } else if (!isNew) { // remarkListJson 为 null，且不是新增关注，则移除所有标签
             if (!userFollowingRemarkService.removeAll(following.getUserId(), following.getFollowingId())) {
                 log.error("移除用户所有标签失败");
                 throw new AtomicityException("移除用户所有标签失败");

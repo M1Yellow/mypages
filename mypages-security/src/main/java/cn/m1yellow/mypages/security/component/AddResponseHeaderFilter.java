@@ -11,6 +11,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -82,7 +83,7 @@ public class AddResponseHeaderFilter extends OncePerRequestFilter {
         // 获取数据库配置的过期时间
         String maxAge = Headers.CACHE_CONTROL_MAX_AGE.getHeadValues();
         Map<String, Object> sysConfigMap = sysConfigService.getSysConfigs();
-        if (null != sysConfigMap && sysConfigMap.size() > 0) {
+        if (!CollectionUtils.isEmpty(sysConfigMap)) {
             maxAge = ObjectUtil.getString(sysConfigMap.get("cache_control_max_age"));
             if (StringUtils.isBlank(maxAge)) {
                 maxAge = Headers.CACHE_CONTROL_MAX_AGE.getHeadValues();

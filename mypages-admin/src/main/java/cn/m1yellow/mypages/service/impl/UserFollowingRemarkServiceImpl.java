@@ -117,7 +117,7 @@ public class UserFollowingRemarkServiceImpl extends ServiceImpl<UserFollowingRem
 
         // 删除本次保存id以外的记录
         if (!CollectionUtils.isEmpty(savedRemarkIdList)) {
-            UpdateWrapper<UserFollowingRemark> updateWrapper = new UpdateWrapper();
+            UpdateWrapper<UserFollowingRemark> updateWrapper = new UpdateWrapper<>();
             updateWrapper.set("is_deleted", 1);
             updateWrapper.eq("user_id", following.getUserId());
             updateWrapper.eq("following_id", following.getFollowingId());
