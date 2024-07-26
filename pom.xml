@@ -43,16 +43,16 @@
         <springboot.version>2.7.18</springboot.version>
         <mysql-connector.version>8.4.0</mysql-connector.version><!-- MySQL 连接驱动版本 -->
         <druid-starter.version>1.2.23</druid-starter.version><!-- druid 连接池 -->
-        <mybatis-plus-starter.version>3.5.6</mybatis-plus-starter.version><!-- mybatis-plus -->
-        <mpg.version>3.5.6</mpg.version><!-- mybatis-plus 代码生成器 -->
+        <mybatis-plus-starter.version>3.5.7</mybatis-plus-starter.version><!-- mybatis-plus -->
+        <mpg.version>3.5.7</mpg.version><!-- mybatis-plus 代码生成器 -->
         <velocity-core.version>2.3</velocity-core.version><!-- mybatis-plus 代码生成器需要的模板引擎 -->
-        <freemarker.version>2.3.32</freemarker.version><!-- mybatis-plus 代码生成器自定义模板引擎 -->
+        <freemarker.version>2.3.33</freemarker.version><!-- mybatis-plus 代码生成器自定义模板引擎 -->
         <swagger.version>3.0.0</swagger.version><!-- swagger3 停止维护了，准备替换其他文档类库 -->
         <httpclient.version>4.5.14</httpclient.version><!-- httpclient 感觉不太好用，各种参数配置和调教 -->
-        <jsoup.version>1.17.2</jsoup.version><!-- 网页 DOM 解析 -->
-        <jjwt-version>0.12.5</jjwt-version><!-- jjwt 整合库，项目中使用 -->
-        <hutool-version>5.8.27</hutool-version><!-- hutool 工具库，最小化引入即可 -->
-        <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version><!-- 阿里云OSS SDK -->
+        <jsoup.version>1.18.1</jsoup.version><!-- 网页 DOM 解析 -->
+        <jjwt-version>0.12.6</jjwt-version><!-- jjwt 整合库，项目中使用 -->
+        <hutool-version>5.8.29</hutool-version><!-- hutool 工具库，最小化引入即可 -->
+        <aliyun-sdk-oss.version>3.18.0</aliyun-sdk-oss.version><!-- 阿里云OSS SDK -->
         <mypages-common.version>1.0.0</mypages-common.version><!-- mypages-common 公共模块 -->
         <mypages-security.version>1.0.0</mypages-security.version><!-- mypages-security 安全模块 -->
         <mypages-generator.version>1.0.0</mypages-generator.version><!-- mypages-generator 代码生成模块 -->

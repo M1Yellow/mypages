@@ -20,11 +20,11 @@
 
 Q：用 `浏览器书签` 按平台分组，把用户主页添加书签，就可以实现聚合多社交平台用户主页了吧，为什么还要花费这么多时间精力写一个项目啊？
 
-A：最开始也是用的浏览器书签分组，也确实挺好用，正因为经常用到，有一天就萌生了自己做一个书签应用的念头 💡
+A：最开始也是用的浏览器书签分组，也确实挺好用，正因为经常用到，有一天就萌生了自己做一个书签应用的念头💡
 
 - 浏览器书签只是基础功能，可以在书签的基础上，新增头像、简介、标签、更新提醒等功能
 - 做一个自己的项目脚手架，能更好地理解、运用、熟练各大技术框架组件
-- 追求极简社交体验，关注创作者本身有品质/感兴趣的内容，而不是平台算法、信息茧房的投喂推送
+- 追求极简社交体验，关注创作者本身有品质/感兴趣的内容，而不是平台算法、信息茧房的推送投喂
 
 
 
@@ -109,19 +109,21 @@ mypages -- 项目目录
 |----------------|---------------------|------------------------------------------------|
 | SpringBoot     | 容器+MVC框架 `2.7.18`   | https://spring.io/projects/spring-boot/        |
 | SpringSecurity | 认证授权框架 `5.7.11`     | https://spring.io/projects/spring-security/    |
-| MyBatisPlus    | ORM、分页、代码生成 `3.5.6` | https://baomidou.com/                          |
+| MyBatisPlus    | ORM、分页、代码生成 `3.5.7` | https://baomidou.com/                          |
 | MySQL 	        | 关系型数据库 `5.7.36`     | https://www.mysql.com/                         |
-| Redis	         | 数据缓存中间件 `6.0.14`    | https://redis.io/download/                     |
+| Redis	         | 数据缓存中间件 `6.2.7`     | https://redis.io/download/                     |
 | Druid          | 数据库连接池 `1.2.23`     | https://github.com/alibaba/druid/              |
-| JWT            | JWT登录支持 `0.12.5`    | https://github.com/jwtk/jjwt/                  |
+| JWT            | JWT登录支持 `0.12.6`    | https://github.com/jwtk/jjwt/                  |
 | Docker         | 虚拟应用容器 `26.1.1`     | https://www.docker.com/                        |
-| Nginx          | 静态资源服务器 `1.25.5`    | https://www.nginx.com/                         |
+| Nginx          | 静态资源服务器 `1.20.1`    | https://www.nginx.com/                         |
 | Tomcat         | Web应用服务器 `9.0.83`   | https://tomcat.apache.org/                     |
 | Jenkins        | 自动化部署工具 `2.60.3`    | https://github.com/jenkinsci/jenkins/          |
 | Swagger        | 文档生成工具 `3.0.0`      | https://github.com/swagger-api/swagger-ui/     |
-| OSS            | 对象存储服务 `3.17.4`     | https://github.com/aliyun/aliyun-oss-java-sdk/ |
+| OSS            | 对象存储服务 `3.18.0`     | https://github.com/aliyun/aliyun-oss-java-sdk/ |
 
-
+> 项目真实使用的组件版本**尽量不要公布**，优先选择比较新的、用的人多的、网上没公布漏洞的版本，
+> 出现问题方便找解决方案，也可以在一定程度上防范漏洞入侵。
+> 后续还需要定期关注组件漏洞信息，及时更新到合适的版本，或者更换其他同类型组件。
 
 <br/>
 

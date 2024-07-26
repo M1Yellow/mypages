@@ -332,12 +332,15 @@ public class UserFollowingController {
         List<UserFollowingRemark> remarkList = null;
         String remarkListJson = following.getRemarkListJson();
         log.info(">>>> doSaveUserFollowingRemark remarkListJson={}", remarkListJson);
+
+        // 查询已有标签数量
+        long remarkCount = userFollowingRemarkService.getRemarkCount(following.getUserId(), following.getFollowingId());
+
         if (StringUtils.isNotBlank(remarkListJson)) {
             remarkList = JSONUtil.toList(remarkListJson, UserFollowingRemark.class);
             // 保存用户标签
             if (!CollectionUtils.isEmpty(remarkList)) {
                 // TODO 校验用户对关注用户添加的标签数量不能超过 10 个，代码常量可配
-                long remarkCount = userFollowingRemarkService.getRemarkCount(following.getUserId(), following.getFollowingId());
                 if (remarkCount >= GlobalConstant.SAME_USER_FOLLOWING_REMARK_NUM) {
                     log.info("关注用户标签数量超过限制");
                     throw new AtomicityException("关注用户标签数量超过限制");
@@ -347,8 +350,12 @@ public class UserFollowingController {
                     throw new AtomicityException("保存用户标签失败");
                 }
             }
-        } else if (!isNew) { // remarkListJson 为 null，且不是新增关注，则移除所有标签
-            if (!userFollowingRemarkService.removeAll(following.getUserId(), following.getFollowingId())) {
+        } else if (!isNew && remarkCount > 0) { // remarkListJson 为 null，不是新增关注且有标签，则移除所有标签
+            // TODO 数据库本身就没有记录，删除操作成功了，但因为返回记录条数为 0，还是认为是失败！
+            //if (!userFollowingRemarkService.removeAll(following.getUserId(), following.getFollowingId())) {}
+            try {
+                userFollowingRemarkService.removeAll(following.getUserId(), following.getFollowingId());
+            } catch (Exception e) {
                 log.error("移除用户所有标签失败");
                 throw new AtomicityException("移除用户所有标签失败");
             }
