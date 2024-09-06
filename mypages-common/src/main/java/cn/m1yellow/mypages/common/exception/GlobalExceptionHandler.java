@@ -5,9 +5,9 @@ import cn.m1yellow.mypages.common.api.ResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 /**
@@ -44,7 +44,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * 定义不同的 Handler 类，并通过  @Order(n) 指定处理顺序，n 越小越先处理。【但一个异常还是会被处理多次】
  */
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
@@ -117,26 +117,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 其他 500 异常【会覆盖级别小的异常】
+     * 其他程序异常
      */
-    /*
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public CommonResult handle(Exception e) {
         log.error("程序出现异常", e);
         return CommonResult.failed(ResultCode.FAILED);
     }
-    */
 
     /**
-     * 其他 error 异常【会覆盖级别小的异常】
+     * 其他系统错误
      */
-    /*
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public CommonResult handle(Throwable e) {
         log.error("系统出现错误", e);
         return CommonResult.failed(ResultCode.FAILED);
     }
-    */
 }

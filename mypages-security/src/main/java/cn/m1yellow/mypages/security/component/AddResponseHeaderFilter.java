@@ -24,36 +24,12 @@ import java.util.Map;
 
 
 /**
- * <b>根据不同的请求类型，设置 header 参数</b><br>
+ * <b>根据不同的请求类型，设置 header 参数</b>
+ * <br>
  * 拦截器 (Interceptor) 与过滤器 (Filter) 的区别
- * https://segmentfault.com/a/1190000022833940
- * 过滤器 和 拦截器 均体现了AOP的编程思想，都可以实现诸如日志记录、登录鉴权等功能
- * <p>
- * - 实现原理不同
- * 过滤器和拦截器底层实现方式大不相同，过滤器是基于函数回调的，拦截器则是基于Java的反射机制（动态代理）实现的。
- * <p>
- * - 使用范围不同
- * 过滤器实现的是 javax.servlet.Filter 接口，而这个接口是在Servlet规范中定义的，也就是说过滤器Filter 的使用要依赖于Tomcat等容器，导致它只能在web程序中使用。
- * 拦截器(Interceptor) 它是一个Spring组件，并由Spring容器管理，并不依赖Tomcat等容器，是可以单独使用的。不仅能应用在web程序中，也可以用于Application、Swing等程序中。
- * <p>
- * - 触发时机不同
- * Tomcat - Filter - Servlet - Interceptor - Controller
- * 过滤器Filter是在请求进入容器后，但在进入servlet之前进行预处理，请求结束是在servlet处理完以后。
- * 拦截器 Interceptor 是在请求进入servlet后，在进入Controller之前进行预处理的，Controller 中渲染了对应的视图之后请求结束。
- * <p>
- * - 拦截的请求范围不同
- * 过滤器几乎可以对所有进入容器的请求起作用，而拦截器只会对Controller中请求或访问static目录下的资源请求起作用。
- * 典型例子：favicon.ico 会导致 Filter 执行两次
- * <p>
- * - 注入Bean情况不同
- * 在实际的业务场景中，应用到过滤器或拦截器，为处理业务逻辑难免会引入一些service服务。
- * Filter 直接 @Autowired 注入就能使用
- * Interceptor 注入使用拿到的是 null，因为加载顺序导致的问题，拦截器加载的时间点在 spring context 之前，而Bean又是由spring进行管理，需要提前手动注入 bean
- * <p>
- * - 控制执行顺序不同
- * 实际开发过程中，会出现多个过滤器或拦截器同时存在的情况，不过，有时希望某个过滤器或拦截器能优先执行，就涉及到它们的执行顺序。
- * 过滤器用@Order注解控制执行顺序，通过@Order控制过滤器的级别，值越小级别越高越先执行。
- * <p>
+ * https://www.cnblogs.com/leizia/p/18079242
+ * <br>
+ * 过滤器适用于对请求和响应的全局处理，拦截器适用于对特定请求的处理。<br>
  * 拦截器默认的执行顺序，就是它的注册顺序，也可以通过Order手动设置控制，值越小越先执行。
  */
 @Slf4j

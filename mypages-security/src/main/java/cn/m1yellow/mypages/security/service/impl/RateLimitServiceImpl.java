@@ -25,9 +25,7 @@ public class RateLimitServiceImpl implements RateLimitService {
             redisUtil.incr(key, 1);
             // 超出访问次数限制
             int count = Integer.parseInt(ObjectUtil.getString(redisUtil.get(key)));
-            if (count > rateLimit.number()) {
-                return false;
-            }
+            return count <= rateLimit.number();
             // 未超出访问次数限制，不进行任何操作，返回true
         } else {
             // 第一次设置数据，过期时间为注解配置的访问周期

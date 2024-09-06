@@ -51,8 +51,8 @@
         <httpclient.version>4.5.14</httpclient.version><!-- httpclient 感觉不太好用，各种参数配置和调教 -->
         <jsoup.version>1.18.1</jsoup.version><!-- 网页 DOM 解析 -->
         <jjwt-version>0.12.6</jjwt-version><!-- jjwt 整合库，项目中使用 -->
-        <hutool-version>5.8.29</hutool-version><!-- hutool 工具库，最小化引入即可 -->
-        <aliyun-sdk-oss.version>3.18.0</aliyun-sdk-oss.version><!-- 阿里云OSS SDK -->
+        <hutool-version>5.8.32</hutool-version><!-- hutool 工具库，最小化引入即可 -->
+        <aliyun-sdk-oss.version>3.18.1</aliyun-sdk-oss.version><!-- 阿里云OSS SDK -->
         <mypages-common.version>1.0.0</mypages-common.version><!-- mypages-common 公共模块 -->
         <mypages-security.version>1.0.0</mypages-security.version><!-- mypages-security 安全模块 -->
         <mypages-generator.version>1.0.0</mypages-generator.version><!-- mypages-generator 代码生成模块 -->

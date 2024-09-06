@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class RateInterceptorConfig extends WebMvcConfigurationSupport {
+public class RateInterceptorConfig implements WebMvcConfigurer {
 
     @Autowired
     private RateLimitInterceptor rateLimitInterceptor;
@@ -17,13 +17,15 @@ public class RateInterceptorConfig extends WebMvcConfigurationSupport {
     private IgnoreUrlsConfig ignoreUrlsConfig;
 
     @Override
-    protected void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(InterceptorRegistry registry) {
 
         // 定义排除静态资源访问的路径配置
         String[] staticExcludes = new String[]{
-                "/swagger-ui.html",
-                "/swagger-resources/**",
-                "/**/v2/api-docs",
+                //"/swagger*", // 无效
+                "/swagger**/**", // 有效
+                //"/swagger-resources/**",
+                //"/swagger-ui/**",
+                "/v*/api-docs", // 有效
                 "/swagger/**",
                 "/webjars/**",
                 "/favicon.ico",
@@ -35,7 +37,7 @@ public class RateInterceptorConfig extends WebMvcConfigurationSupport {
         };
 
         registry.addInterceptor(rateLimitInterceptor).addPathPatterns("/**")
-                .excludePathPatterns(staticExcludes);
+                .excludePathPatterns(staticExcludes); // /**/ 排除的路径会导致 /user/login 也被排除了
 
         /*
         InterceptorRegistration interceptorRegistration = registry.addInterceptor(rateLimitInterceptor);
@@ -66,11 +68,10 @@ public class RateInterceptorConfig extends WebMvcConfigurationSupport {
         ).addResourceLocations(
                 "classpath:/META-INF/resources/",
                 "classpath:/META-INF/resources/webjars/",
+                "classpath:/static/",
                 // 指定 /public/ 无法访问
                 "classpath:/public/images/"
         );
-
-        super.addResourceHandlers(registry);
     }
 
     /**
@@ -81,11 +82,14 @@ public class RateInterceptorConfig extends WebMvcConfigurationSupport {
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/*")
-                .allowedOrigins("*")
-                .allowCredentials(true)
-                .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH")
-                .maxAge(3600);
+        registry.addMapping("/**")
+                .allowCredentials(true) // 是否允许证书 是否发送Cookie
+                //.allowedOrigins("*") // SpringBoot 2.4.4 下低版本使用
+                .allowedOriginPatterns("*") // 允许跨域请求的域名
+                //.allowedMethods(new String[]{"GET", "POST", "PUT", "DELETE"})
+                .allowedMethods("*") // 允许请求方法
+                .allowedHeaders("*") // 允许请求头
+                .maxAge(3600); // 跨域允许时间，单位：秒
     }
 
 }
