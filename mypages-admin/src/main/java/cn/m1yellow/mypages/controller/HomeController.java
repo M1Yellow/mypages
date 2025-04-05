@@ -105,7 +105,7 @@ public class HomeController {
         platformQueryParams.put("userId", userId);
         if (isHomeDefault) {
             platformQueryParams.put("pageNo", 0);
-            platformQueryParams.put("pageSize", platformNum);
+            //platformQueryParams.put("pageSize", platformNum); // 未登录也能看到所有平台
         }
         List<UserPlatformDto> PlatformList = userPlatformService.queryUserPlatformList(platformQueryParams);
 
