@@ -107,6 +107,8 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
 
         // 指定获取信息的元素位置
         UserInfoItem infoItem = new UserInfoItem();
+        // name 为 null，再取一层
+        if (null == dataObject.get("name")) dataObject = dataObject.get("card");
         // 用户名
         String userName = JSONUtil.node2Str(dataObject.get("name"));
         infoItem.setUserName(userName);
@@ -115,7 +117,7 @@ public class DataOfBiliExcavateServiceImpl implements DataExcavateService {
         infoItem.setSignature(signature);
         // 头像地址
         String imgUrl = JSONUtil.node2Str(dataObject.get("face"));
-        if (imgUrl.indexOf("@") > -1) { // 截取去掉后面的 webp 参数
+        if (imgUrl.contains("@")) { // 截取去掉后面的 webp 参数
             imgUrl = imgUrl.substring(0, imgUrl.indexOf("@"));
         }
         infoItem.setHeadImgUrl(imgUrl);

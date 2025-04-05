@@ -2,15 +2,16 @@ package cn.m1yellow.mypages.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -42,7 +43,7 @@ public class UserFollowingType implements Serializable {
     @ApiModelProperty(value = "关注者所属的类型")
     private String typeName;
 
-    @ApiModelProperty(value = "优先级由低到高：1-10，默认5")
+    @ApiModelProperty(value = "优先级由低到高：0-100，默认50")
     private Integer sortNo;
 
     @ApiModelProperty(value = "本条数据是否已删除，1-是；0-否，默认0")

@@ -111,7 +111,7 @@ public class UserFollowingServiceImpl extends ServiceImpl<UserFollowingMapper, U
 
         switch (platformInfo) {
             case BILIBILI:
-                apiUrl = "https://api.vc.bilibili.com/account/v1/user/cards?uids=userId";
+                apiUrl = "https://api.bilibili.com/x/web-interface/card?mid=userId";
                 fromUrl = apiUrl.replace("userId", userId);
                 userInfoItem = dataOfBiliExcavateService.singleImageDownloadFromJson(fromUrl, saveDirFullPath, params);
                 break;
@@ -121,6 +121,12 @@ public class UserFollowingServiceImpl extends ServiceImpl<UserFollowingMapper, U
                 apiUrl = "https://m.weibo.cn/api/container/getIndex?type=uid&value=userId";
                 fromUrl = apiUrl.replace("userId", userId);
                 userInfoItem = dataOfWeiboExcavateService.singleImageDownloadFromJson(fromUrl, saveDirFullPath, params);
+                break;
+            case DOUYIN:
+
+                break;
+            case XIAOHONGSHU:
+
                 break;
             case DOUBAN:
 

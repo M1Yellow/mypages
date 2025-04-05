@@ -84,8 +84,10 @@ public class UserFollowingDto implements Serializable {
     private Boolean isUser = true;
 
     @Builder.Default
-    @ApiModelProperty(value = "优先级由低到高：1-10，默认5")
-    private Integer sortNo = 5;
+    @Min(value = 0, message = "优先级由低到高：0-100")
+    @Max(value = 100, message = "优先级由低到高：0-100")
+    @ApiModelProperty(value = "优先级由低到高：0-100，默认50")
+    private Integer sortNo = 50;
 
     @Builder.Default
     @ApiModelProperty(value = "本条数据是否已删除，1-是；0-否，默认0")

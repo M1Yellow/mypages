@@ -9,7 +9,9 @@ public enum PlatformInfo {
     BILIBILI(2, "B站", "bilibili"),
     WEIBO(3, "微博", "weibo"),
     DOUBAN(4, "豆瓣", "douban"),
-    ZHIHU(5, "知乎", "zhihu");
+    ZHIHU(5, "知乎", "zhihu"),
+    DOUYIN(6, "抖音", "douyin"),
+    XIAOHONGSHU(7, "小红书", "xiaohongshu");
 
     private int id;
     private String name;
