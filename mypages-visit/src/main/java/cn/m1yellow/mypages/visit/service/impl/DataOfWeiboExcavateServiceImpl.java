@@ -1,12 +1,10 @@
 package cn.m1yellow.mypages.visit.service.impl;
 
+import cn.m1yellow.mypages.common.constant.GlobalConstant;
 import cn.m1yellow.mypages.common.exception.ApiException;
 import cn.m1yellow.mypages.common.service.FileDownloadService;
 import cn.m1yellow.mypages.common.service.OssService;
-import cn.m1yellow.mypages.common.util.HeaderUtil;
-import cn.m1yellow.mypages.common.util.HttpClientUtil;
-import cn.m1yellow.mypages.common.util.JSONUtil;
-import cn.m1yellow.mypages.common.util.ObjectUtil;
+import cn.m1yellow.mypages.common.util.*;
 import cn.m1yellow.mypages.visit.bo.UserInfoItem;
 import cn.m1yellow.mypages.visit.service.DataExcavateService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,6 +41,8 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
     private FileDownloadService httpClientDownloadService;
     @Autowired(required = false)
     private OssService ossService;
+    @Autowired
+    private RedisUtil redisUtil;
 
 
     /**
@@ -94,15 +94,30 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
 
     @Override
     public UserInfoItem singleImageDownloadFromJson(String fromUrl, String saveDir, Map<String, Object> params) {
-        String result = HttpClientUtil.doGet(fromUrl);
-        if (StringUtils.isBlank(result)) {
-            throw new ApiException("接口返回数据异常");
+        // 获取SUB
+        String sub = getCookie_SUB();
+        if (StringUtils.isBlank(sub)) {
+            throw new ApiException("获取SUB参数失败");
         }
-
+        log.info(">>>> singleImageDownloadFromJson weibo sub: {}", sub);
+        params.put("Cookie", "SUB=" + sub);
+        String result = HttpClientUtil.doGet(fromUrl, params);
+        if (StringUtils.isBlank(result)) {
+            throw new ApiException("接口返回信息为空");
+        }
         log.info(">>>> singleImageDownloadFromJson result: {}", result);
         ObjectNode resultObject = JSONUtil.toJSONObject(result);
+        if (null == resultObject) {
+            throw new ApiException("接口返回信息异常");
+        }
         JsonNode dataObject = resultObject.get("data");
-        JsonNode userInfoObject = dataObject.get("userInfo");
+        if (null == dataObject) {
+            throw new ApiException("接口返回data异常");
+        }
+        JsonNode userInfoObject = dataObject.get("user");
+        if (null == userInfoObject) {
+            throw new ApiException("接口返回user异常");
+        }
 
         // 指定获取信息的元素位置
         UserInfoItem infoItem = new UserInfoItem();
@@ -112,12 +127,17 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
         // 个性签名
         String description = JSONUtil.node2Str(userInfoObject.get("description"));
         String verify = JSONUtil.node2Str(userInfoObject.get("verified_reason"));
+        String descText = JSONUtil.node2Str(userInfoObject.get("descText"));
         String signature = (null == verify ? "" : verify) + (null == description ? "" : (" " + description));
+        if (StringUtils.isBlank(signature)) signature = descText;
         infoItem.setSignature(signature);
         // 头像地址
-        String imgUrl = JSONUtil.node2Str(userInfoObject.get("avatar_hd"));
+        String imgUrl = JSONUtil.node2Str(userInfoObject.get("avatar_large"));
         if (imgUrl.indexOf("@") > -1) { // 截取去掉后面的 webp 参数
             imgUrl = imgUrl.substring(0, imgUrl.indexOf("@"));
+        }
+        if (imgUrl.indexOf("?") > -1) { // 截取去掉后面的拼接参数
+            imgUrl = imgUrl.substring(0, imgUrl.indexOf("?"));
         }
         infoItem.setHeadImgUrl(imgUrl);
 
@@ -204,4 +224,28 @@ public class DataOfWeiboExcavateServiceImpl implements DataExcavateService {
 
         return infoItem;
     }
+
+
+    public String getCookie_SUB() {
+        // 先从redis缓存中取
+        String sub = ObjectUtil.getString(redisUtil.get(GlobalConstant.WB_API_COOKIE_SUB));
+        if (StringUtils.isBlank(sub)) {
+            String url = "https://passport.weibo.com/visitor/genvisitor2";
+            Map<String, Object> params = new HashMap<>(3);
+            params.put("cb", "visitor_gray_callback");
+            params.put("tid", "");
+            params.put("from", "weibo");
+            String result = HttpClientUtil.doPost(url, null, params);
+            log.info(">>>> getCookie_SUB result: {}", result);
+            String result2 = result.substring(result.indexOf("{\"retcode\""), result.length() - 1);
+            ObjectNode resultObject = JSONUtil.toJSONObject(result2);
+            JsonNode dataObject = resultObject.get("data");
+            sub = JSONUtil.node2Str(dataObject.get("sub"));
+            // 存redis缓存
+            redisUtil.set(GlobalConstant.WB_API_COOKIE_SUB, sub, GlobalConstant.WB_API_COOKIE_SUB_CACHE_TIME);
+        }
+        return sub;
+    }
+
+
 }

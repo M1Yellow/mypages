@@ -111,14 +111,20 @@ public class UserFollowingServiceImpl extends ServiceImpl<UserFollowingMapper, U
 
         switch (platformInfo) {
             case BILIBILI:
+                params.put("Cookie", "");
+                params.put("Referer", "https://www.bilibili.com/");
                 apiUrl = "https://api.bilibili.com/x/web-interface/card?mid=userId";
                 fromUrl = apiUrl.replace("userId", userId);
                 userInfoItem = dataOfBiliExcavateService.singleImageDownloadFromJson(fromUrl, saveDirFullPath, params);
                 break;
             case WEIBO:
+                params.put("Cookie", "");
+                params.put("Referer", "https://weibo.com/");
                 //apiUrl = "https://weibo.com/u/userId";
                 //apiUrl = "https://m.weibo.cn/api/container/getIndex?type=uid&value=userId&containerid=1005056488142313";
-                apiUrl = "https://m.weibo.cn/api/container/getIndex?type=uid&value=userId";
+                //apiUrl = "https://m.weibo.cn/api/container/getIndex?type=uid&value=userId";
+                apiUrl = "https://weibo.com/ajax/profile/info?uid=userId";
+                //apiUrl = "https://weibo.com/ajax/user/popcard/get?id=userId";
                 fromUrl = apiUrl.replace("userId", userId);
                 userInfoItem = dataOfWeiboExcavateService.singleImageDownloadFromJson(fromUrl, saveDirFullPath, params);
                 break;

@@ -149,7 +149,7 @@ public class HttpClientUtil {
 
         // 设置默认 header 参数
         List<Header> defaultHeaders = new ArrayList<>();
-        BasicHeader userAgentHeader = new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
+        BasicHeader userAgentHeader = new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36");
         defaultHeaders.add(userAgentHeader);
         httpClientBuilder.setDefaultHeaders(defaultHeaders);
 
@@ -164,8 +164,25 @@ public class HttpClientUtil {
         //idleThread.start();
 
         // 初始化请求头参数
+        //HEADERS.put("Content-Type", "application/json;charset=UTF-8");
         HEADERS.put("User-Agent", HeaderUtil.getOneHeaderRandom());
 
+    }
+
+
+    public static void main(String[] args) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("test1", 1111);
+        params.put("test2", "hhhh");
+        String url = "https://m.weibo.cn/api/container/getIndex?type=uid&value=5873597305&containerid=1005055873597305";
+        url = "https://weibo.com/ajax/profile/info?uid=2846104240";
+        HEADERS.put("Referer", "https://weibo.com/");
+        HEADERS.put("Cookie", "XSRF-TOKEN=vIAWGR9TrFeKd_p3n94afTD3; SUB=_2AkMfjl_Qf8NxqwFRmvsQzWzmbIlywgnEieKp0q4LJRMxHRl-yT9yqkMFtRB6NA5xPyN_FCKYgJOEMBFY-418yQuWKBu0; SUBP=0033WrSXqPxfM72-Ws9jqgMF55529P9D9WFmb98cJhraZckPik_hObi9; WBPSESS=VFkNPEb725ruVm0iDC4EQKtmuEb9BDZo4Vs9Xp8VJ_mRdPqK2C_bfR-3eJWw27UmnULjJxmLGvM9nkuf2MISn_92bO-ez2LUCUHTIxA5K-bLmqZOeXPbxVi1GO0X2yHlBa2-ysZNNoyGPutHeoJt32sc2OylA49Mcs6bPQgf3_s=");
+        //url = "https://api.bilibili.com/x/web-interface/card?mid=8366990";
+        //HEADERS.put("Referer", "https://www.bilibili.com/");
+        //HEADERS.put("Cookie", "");
+        String result = doGet(url, params);
+        System.out.println(result);
     }
 
 
@@ -315,15 +332,36 @@ public class HttpClientUtil {
         // 从 HttpClients 构建器获取可关闭的 HttpClients 实例
         //CloseableHttpClient closeableHttpClient = httpClientBuilder.build();
 
+        // 是否需要拼接get参数，1-需要
+        int addFlag = 0;
+        // 设置 header 信息
+        if (null != params) {
+            if (params.containsKey("Cookie")) {
+                String cookie = ObjectUtil.getString(params.get("Cookie"));
+                params.remove("Cookie");
+                headers.put("Cookie", cookie);
+            }
+            if (params.containsKey("Referer")) {
+                String referer = ObjectUtil.getString(params.get("Referer"));
+                params.remove("Referer");
+                headers.put("Referer", referer);
+            }
+            if (params.containsKey("addFlag")) {
+                addFlag = (int) params.get("addFlag");
+            }
+        }
+
         // 构建请求头
-        String apiUrl = getUrlWithParams(url, params);
+        String apiUrl = url;
+        if (1 == addFlag) apiUrl = getUrlWithParams(url, params);
+        log.info(">>>> doGet url: {}", apiUrl);
         HttpGet httpGet = new HttpGet(apiUrl);
 
-        // 设置 header 信息
         if (null != headers && !headers.isEmpty()) {
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 httpGet.addHeader(entry.getKey(), entry.getValue());
             }
+            log.info(">>>> doGet headers: {}", Arrays.toString(httpGet.getAllHeaders()));
         }
 
         // 处理响应
@@ -625,7 +663,7 @@ public class HttpClientUtil {
      */
     private static String getUrlWithParams(String url, Map<String, Object> params) {
         if (null == params || params.size() < 1) return url;
-        boolean first = true;
+        boolean first = !url.contains("?"); // 别太相信网上的代码！有的连最基本的验证可能都过不了
         StringBuilder sb = new StringBuilder(url);
         for (String key : params.keySet()) {
             char ch = '&';

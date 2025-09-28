@@ -100,6 +100,10 @@ public class GlobalConstant {
     /** 关注用户分页数据列表缓存时间，单位：秒 */
     public static final long USER_FOLLOWING_PAGE_LIST_CACHE_TIME = 60 * 60;
 
+    /** 微博APIcookie校验参数sub缓存时间，单位：秒 */
+    public static final String WB_API_COOKIE_SUB = "WB_API_COOKIE_SUB";
+    public static final long WB_API_COOKIE_SUB_CACHE_TIME = 30 * 24 * 60 * 60;
+
 
     //==============================================================================//
     // 数据库基础数据常量
